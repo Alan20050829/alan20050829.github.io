@@ -936,6 +936,20 @@
 
             const 對話框 = document.createElement('div');
             對話框.className = '任務對話框';
+            const 是移動設備 = window.innerWidth <= 768;
+
+            if (是移動設備) {
+                對話框.style.position = 'fixed';
+                對話框.style.top = '0';
+                對話框.style.left = '0';
+                對話框.style.right = '0';
+                對話框.style.bottom = '0';
+                對話框.style.width = '100%';
+                對話框.style.height = '100%';
+                對話框.style.maxWidth = 'none';
+                對話框.style.transform = 'none';
+                對話框.style.borderRadius = '0';
+            }
             
             const 年 = 日期.getFullYear();
             const 月 = 日期.getMonth();
