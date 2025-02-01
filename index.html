@@ -246,23 +246,38 @@
             opacity: 0;
             transition: opacity 0.2s ease-out, transform 0.2s ease-out;
             width: 300px;  /* 默認寬度，適用於電腦版 */
-            max-width: 90%;
+            height: auto;
             max-height: 80vh;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            /* 防止縮放影響大小 */
+            transform-origin: center;
+            -webkit-transform-origin: center;
+            will-change: transform;
+            /* 確保內容不會溢出 */
+            box-sizing: border-box;
+            /* 防止iOS縮放時的文字大小調整 */
+            -webkit-text-size-adjust: 100%;
         }
 
         .任務對話框.顯示 {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
         }
-
+        
         @media (max-width: 768px) {
             .任務對話框 {
-                width: 80%;  /* 手機版寬度 */
+                width: 90vw;  /* 使用視窗寬度的百分比 */
                 height: auto;
-                max-height: 30vh;
+                max-height: 80vh;
+                /* 確保對話框始終保持在視窗中心 */
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
             }
         }
+
 
         .全局遮罩 {
             position: fixed;
@@ -274,6 +289,9 @@
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.2s ease-out;
+            /* 防止iOS滾動穿透 */
+            -webkit-overflow-scrolling: touch;
+            touch-action: none;
         }
 
         .全局遮罩.顯示 {
@@ -284,6 +302,8 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            /* 防止iOS表單元素的預設樣式 */
+            -webkit-appearance: none;
         }
 
         .任務表單 input,
@@ -292,6 +312,14 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
+            /* 防止iOS中輸入框的陰影 */
+            -webkit-appearance: none;
+            appearance: none;
+            /* 防止iOS中輸入框的縮放 */
+            font-size: 16px;
+            /* 確保輸入框大小固定 */
+            box-sizing: border-box;
+            width: 100%;
         }
 
         .按鈕組 {
@@ -308,6 +336,9 @@
             font-size: 16px;
             cursor: pointer;
             touch-action: manipulation;
+            /* 防止iOS中按鈕的預設樣式 */
+            -webkit-appearance: none;
+            appearance: none;
         }
 
         .按鈕組 button[type="submit"] {
@@ -317,6 +348,14 @@
 
         .按鈕組 button[type="button"] {
             background: #eee;
+        }
+
+        /* 在對話框打開時防止背景滾動 */
+        body.對話框開啟 {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
         }
 
         .節日標示 {
@@ -772,6 +811,9 @@
             // 先清除已存在的對話框和遮罩
             關閉任務對話框();
 
+            // 阻止背景滾動
+            document.body.classList.add('對話框開啟');
+
             // 創建全局遮罩
             const 遮罩 = document.createElement('div');
             遮罩.className = '全局遮罩';
@@ -789,20 +831,6 @@
 
             const 對話框 = document.createElement('div');
             對話框.className = '任務對話框';
-            
-            const 是移動設備 = window.innerWidth <= 768;
-
-            if (是移動設備) {
-                對話框.style.position = 'fixed';
-                對話框.style.top = '50%';
-                對話框.style.left = '50%';
-                對話框.style.transform = 'translate(-50%, -50%)';
-                對話框.style.width = '90%';
-                對話框.style.height = '90%';
-                對話框.style.maxWidth = 'none';
-                對話框.style.borderRadius = '10px';
-                對話框.style.overflowY = 'auto';
-            }
 
             const 年 = 日期.getFullYear();
             const 月 = 日期.getMonth();
@@ -832,22 +860,30 @@
             
             document.body.appendChild(對話框);
 
-            // 確保對話框始終在視窗中央
-            function 更新對話框位置() {
-                if (是移動設備) {
-                    對話框.style.top = '50%';
-                    對話框.style.left = '50%';
-                    對話框.style.transform = 'translate(-50%, -50%)';
-                }
+            // 防止縮放影響對話框大小和位置
+            function 防止縮放影響() {
+                // 設置視口縮放比例為1
+                const viewport = document.querySelector('meta[name="viewport"]');
+                const originalContent = viewport.content;
+                viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
+                
+                // 對話框關閉時恢復原始視口設置
+                return () => {
+                    viewport.content = originalContent;
+                };
             }
 
-            // 監聽滾動和調整視窗大小事件
-            window.addEventListener('scroll', 更新對話框位置);
-            window.addEventListener('resize', 更新對話框位置);
+            const 恢復視口設置 = 防止縮放影響();
+
+            // 在對話框關閉時恢復視口設置
+            對話框.addEventListener('transitionend', () => {
+                if (!對話框.classList.contains('顯示')) {
+                    恢復視口設置();
+                }
+            });
 
             // 初始化位置並顯示動畫
             requestAnimationFrame(() => {
-                更新對話框位置();
                 // 強制重排後再添加動畫類
                 對話框.offsetHeight; // 觸發重排
                 對話框.classList.add('顯示');
@@ -860,11 +896,19 @@
                     關閉任務對話框();
                 }
             });
+
+            // 防止對話框內的觸摸事件傳播到背景
+            對話框.addEventListener('touchmove', (事件) => {
+                事件.stopPropagation();
+            }, { passive: false });
         }
 
         function 關閉任務對話框() {
             const 對話框 = document.querySelector('.任務對話框');
             const 遮罩 = document.querySelector('.全局遮罩');
+            
+            // 恢復背景滾動
+            document.body.classList.remove('對話框開啟');
             
             if (對話框) {
                 // 移除動畫類觸發淡出效果
