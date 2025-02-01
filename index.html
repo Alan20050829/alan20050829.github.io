@@ -1170,24 +1170,75 @@
         }
 
         function 取得節日標示(日期) {
+            const 月 = 日期.getMonth() + 1;
+            const 日 = 日期.getDate();
+            
             const 節日表 = {
-                '2024': {
-                    '1-1': '元旦',
-                    '2-10': '春節',
-                    '2-11': '春節',
-                    '2-12': '春節',
-                    '2-13': '春節',
-                    '2-14': '春節',
-                    '4-4': '清明節',
-                    '5-1': '勞動節',
-                    '6-10': '端午節',
-                    '9-17': '中秋節',
-                    '10-10': '國慶日'
-                }
+                "1-1": "元旦",
+                "2-28": "和平紀念日",
+                "4-4": "兒童節",
+                "4-5": "清明節",
+                "5-1": "勞動節",
+                "8-8": "父親節",
+                "10-10": "國慶日",
+                "10-25": "台灣光復節",
+                "12-25": "行憲紀念日"
             };
-            const 月日 = `${日期.getMonth()+1}-${日期.getDate()}`;
-            const 節日 = 節日表[日期.getFullYear()]?.[月日];
+
+            // 計算農曆春節、端午節、中秋節日期
+            const 年 = 日期.getFullYear();
+            const 春節 = calculateLunarNewYear(年);
+            const 端午節 = calculateDragonBoatFestival(年); 
+            const 中秋節 = calculateMidAutumnFestival(年);
+
+            // 將農曆節日加入節日表
+            節日表[`${春節.getMonth() + 1}-${春節.getDate()}`] = "春節";
+            節日表[`${端午節.getMonth() + 1}-${端午節.getDate()}`] = "端午節";
+            節日表[`${中秋節.getMonth() + 1}-${中秋節.getDate()}`] = "中秋節";
+
+            const 節日 = 節日表[`${月}-${日}`];
             return 節日 ? `<div class="節日標示">${節日}</div>` : '';
+        }
+
+        // 計算農曆春節的公曆日期
+        function calculateLunarNewYear(year) {
+            // 使用香港天文台提供的公式計算春節日期
+            // 詳見: https://www.hko.gov.hk/en/gts/time/calendar/pdf/Easter_e.pdf
+            const 春節日期 = new Date(year, 0, 1);
+            const 儒略日 = 日期轉儒略日(春節日期) - 1;
+            const 朔日修正 = Math.floor((year - 1900) * 0.2422 + 4.8175);
+            const 朔望月修正 = 0.25 * Math.floor((year - 2000) / 400);
+            const 農曆春節儒略日 = 儒略日 + 朔日修正 - 朔望月修正;
+            return 儒略日轉日期(農曆春節儒略日);
+        }
+
+        // 計算端午節的公曆日期
+        function calculateDragonBoatFestival(year) {
+            const 春節 = calculateLunarNewYear(year);
+            const 端午節 = new Date(春節);
+            端午節.setDate(春節.getDate() + 60); // 農曆5月5日
+            return 端午節;
+        }
+
+        // 計算中秋節的公曆日期  
+        function calculateMidAutumnFestival(year) {
+            const 春節 = calculateLunarNewYear(year);
+            const 中秋節 = new Date(春節);
+            中秋節.setDate(春節.getDate() + 240); // 農曆8月15日
+            return 中秋節;
+        }
+
+        // 公曆日期轉儒略日
+        function 日期轉儒略日(日期) {
+            return Math.floor((日期 - new Date(日期.getFullYear(), 0, 1)) / 86400000) + 1;
+        }
+
+        // 儒略日轉公曆日期
+        function 儒略日轉日期(儒略日) {
+            const 年 = new Date().getFullYear();
+            const 日期 = new Date(年, 0, 1);
+            日期.setDate(日期.getDate() + 儒略日 - 1);
+            return 日期;
         }
 
         function 儲存資料() {
