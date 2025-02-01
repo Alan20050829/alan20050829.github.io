@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>無敵小本本</title>
     <style>
         :root {
@@ -400,7 +400,7 @@
                 <select id="年份選擇器" class="年份選擇器" onchange="更改年份(this.value)">
                 </select>
                 <span class="分隔符">年</span>
-                <select id="月份選擇器" class="年份選擇器" onchange="更改月份(this.value)">
+                <select id="月份選擇器" class="月份選擇器" onchange="更改月份(this.value)">
                 </select>
                 <span class="分隔符">月</span>
             </h2>
@@ -411,8 +411,8 @@
     </div>
 
     <script>
-                // 資料管理系統
-                let 當前視圖模式 = '月';
+        // 資料管理系統
+        let 當前視圖模式 = '月';
         let 當前月份 = new Date().getMonth();
         let 當前年份 = new Date().getFullYear();
         let 當前週數 = Math.floor((new Date().getDate() - 1) / 7);
@@ -422,7 +422,7 @@
         let 長按計時器;
         let 是否長按 = false;
         let 初始觸摸位置;
-        const 長按閾值 = 500; // 毫秒
+        const 長按閾值 = 800; // 毫秒
 
         document.addEventListener('touchstart', (e) => {
             初始觸摸位置 = e.touches[0].clientX;
