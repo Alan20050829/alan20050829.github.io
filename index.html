@@ -17,6 +17,10 @@
             --border-color: #F5B041; /* 邊框顏色 */
             --task-bg: #FEF9E7;    /* 任務背景色 */
         }
+        * {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
 
         .視圖容器 {
             position: relative;
@@ -44,25 +48,31 @@
         }
 
         body {
-            font-family: '微軟正黑體', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, '微軟正黑體', sans-serif;
             margin: 0;
             padding: 0;
             min-height: 100vh;
             background: var(--背景色);
             color: var(--文字色);
-            perspective: 1500px;
+            -webkit-text-size-adjust: 100%;
         }
 
         .主容器 {
-            margin: 20px auto;
-            padding: 20px;
-            max-width: 1400px;
+            margin: 0 auto;
+            padding: 12px;
+            max-width: 100%;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px var(--page-shadow);
-            position: relative;
-            z-index: 1;
+            box-shadow: 0 2px 4px var(--page-shadow);
         }
+        @media (min-width: 768px) {
+            .主容器 {
+                margin: 20px auto;
+                padding: 20px;
+                max-width: 1400px;
+                border-radius: 12px;
+            }
+        }
+
 
         .book-container {
             position: fixed;
@@ -139,22 +149,33 @@
         }
 
         .控制列 {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            align-items: center;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .控制列 {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 1.5rem;
+            }
         }
 
         .視圖按鈕 {
-            padding: 8px 16px;
+            padding: 12px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             background: var(--主要色);
             color: white;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.2s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.2s;
         }
+
 
         .視圖按鈕.活動 {
             background: var(--成功色);
@@ -163,18 +184,32 @@
         .月曆標頭 {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 1rem;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 0 0.5rem;
         }
 
         .月曆標頭 h2 {
             margin: 0;
-            color: var(--主要色);
-            font-size: 1.8rem;
-            display: flex;
-            align-items: baseline;
-            gap: 8px;
-            font-weight: normal;
+            font-size: 1.2rem;
+        }
+
+        @media (min-width: 768px) {
+            .月曆標頭 h2 {
+                font-size: 1.8rem;
+            }
+        }
+
+        .月曆表格 {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        @media (min-width: 768px) {
+            .月曆表格 {
+                gap: 8px;
+            }
         }
 
         #年份選擇器, #月份選擇器, .分隔符 {
@@ -249,14 +284,23 @@
         }
 
         .日期格 {
-            padding: 1rem;
+            padding: 0.5rem;
+            min-height: 80px;
             border: 1px solid #eee;
-            border-radius: 8px;
+            border-radius: 6px;
             background: white;
-            min-height: 150px;
-            transition: all 0.2s;
-            position: relative;
+            font-size: 0.9rem;
+            touch-action: manipulation;
         }
+
+        @media (min-width: 768px) {
+            .日期格 {
+                padding: 1rem;
+                min-height: 150px;
+                font-size: 1rem;
+            }
+        }
+
 
         .日期格:hover {
             transform: translateY(-3px);
@@ -273,30 +317,58 @@
         }
 
         .任務項目 {
-            padding: 8px;
-            margin: 6px 0;
+            padding: 6px;
+            margin: 4px 0;
             background: var(--task-bg);
             border-left: 3px solid var(--優先級顏色);
             border-radius: 4px;
+            font-size: 0.85rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        @media (min-width: 768px) {
+            .任務項目 {
+                padding: 8px;
+                margin: 6px 0;
+                font-size: 1rem;
+            }
         }
 
         .任務對話框 {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
             background: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             z-index: 1001;
-            min-width: 300px;
-            transition: all 0.3s ease;
             opacity: 0;
+            transform: scale(0.7);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
+        .任務對話框.顯示 {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .全局遮罩 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s ease-out;
+        }
+
+        .全局遮罩.顯示 {
+            opacity: 1;
         }
 
         .對話框背景 {
@@ -314,21 +386,41 @@
         .任務表單 {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
         .任務表單 input,
         .任務表單 select {
-            padding: 8px;
+            padding: 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
+            font-size: 16px;
         }
 
+
         .按鈕組 {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .按鈕組 button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .按鈕組 button[type="submit"] {
+            background: var(--主要色);
+            color: white;
+        }
+
+        .按鈕組 button[type="button"] {
+            background: #eee;
         }
 
         .節日標示 {
@@ -337,28 +429,38 @@
             margin-top: 4px;
         }
 
-        @media (max-width: 768px) {
-            .日期格 {
-                min-height: 120px;
-                padding: 0.8rem;
-            }
-            
-            .book {
-                width: 90vw;
-                height: 90vh;
-            }
-        }
-
         .週視圖表格 {
-            display: grid;
-            grid-template-columns: 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 8px;
         }
 
         .週列 {
             display: grid;
-            grid-template-columns: 100px 1fr;
+            grid-template-columns: 80px 1fr;
             gap: 8px;
+        }
+
+        @media (max-width: 767px) {
+            .book-container {
+                display: none;
+            }
+        }
+
+        /* 增加觸控反饋 */
+        @media (hover: none) {
+            .視圖按鈕:active,
+            .任務項目:active,
+            .日期格:active {
+                opacity: 0.7;
+            }
+        }
+
+        /* 優化移動端滾動體驗 */
+        .週視圖表格,
+        .月曆表格 {
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
 
         .星期標頭 {
@@ -405,6 +507,11 @@
         .日期格.active:hover,
         .週日期格.active:hover {
             background-color: var(--task-bg);
+        }
+        select {
+            -webkit-appearance: none;
+            background: #fff url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23E67E22' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center/16px 16px;
+            padding-right: 24px;
         }
     </style>
 </head>
@@ -470,7 +577,41 @@
         let 當前週數 = Math.floor((new Date().getDate() - 1) / 7);
         let 任務資料 = JSON.parse(localStorage.getItem('plan-data')) || [];
         let 當前活動日期格 = null;
+        let touchStartX = 0;
+        let touchEndX = 0;
 
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+        
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+        
+        function handleSwipe() {
+            const minSwipeDistance = 50;
+            const swipeDistance = touchEndX - touchStartX;
+            
+            if (Math.abs(swipeDistance) > minSwipeDistance) {
+                if (swipeDistance > 0) {
+                    切換期間(-1); // 向右滑動，顯示上一個月/週
+                } else {
+                    切換期間(1);  // 向左滑動，顯示下一個月/週
+                }
+            }
+        }
+
+        // 優化滾動效能
+        let isScrolling;
+        window.addEventListener('scroll', () => {
+            clearTimeout(isScrolling);
+            document.body.classList.add('is-scrolling');
+            
+            isScrolling = setTimeout(() => {
+                document.body.classList.remove('is-scrolling');
+            }, 100);
+        }, false);
         // 初始化年份選擇器
         function 初始化年份選擇器() {
             const 選擇器 = document.getElementById('年份選擇器');
@@ -775,15 +916,16 @@
         }
 
         function 顯示任務對話框(日期, 任務 = null, 事件) {
-            document.querySelector('.任務對話框')?.remove();
-            document.querySelector('.對話框背景')?.remove();
+            // 先清除已存在的對話框和遮罩
+            關閉任務對話框();
 
-            // 為點擊的日期格添加背景遮罩和反灰樣式
+            // 創建全局遮罩
+            const 遮罩 = document.createElement('div');
+            遮罩.className = '全局遮罩';
+            document.body.appendChild(遮罩);
+
+            // 為點擊的日期格添加反灰樣式
             const 點擊格 = 事件.currentTarget;
-            const 背景 = document.createElement('div');
-            背景.className = '對話框背景';
-            點擊格.style.position = 'relative';
-            點擊格.appendChild(背景);
             點擊格.classList.add('active');
 
             // 移除之前活動日期格的反灰樣式
@@ -794,7 +936,6 @@
 
             const 對話框 = document.createElement('div');
             對話框.className = '任務對話框';
-            document.body.appendChild(對話框);
             
             const 年 = 日期.getFullYear();
             const 月 = 日期.getMonth();
@@ -807,9 +948,9 @@
                     <input type="hidden" name="日" value="${日}">
                     <input type="text" name="內容" placeholder="任務內容" value="${任務?.內容 || ''}" required>
                     <input type="time" name="時間" 
-                           value="${任務?.時間戳 || ''}" 
-                           min="00:00" 
-                           max="23:59">
+                        value="${任務?.時間戳 || ''}" 
+                        min="00:00" 
+                        max="23:59">
                     <select name="優先級">
                         <option value="高" ${任務?.優先級 === '高' ? 'selected' : ''}>高優先級</option>
                         <option value="中" ${任務?.優先級 === '中' || !任務 ? 'selected' : ''}>中優先級</option>
@@ -824,29 +965,81 @@
             
             document.body.appendChild(對話框);
 
-            // 將對話框定位於可視區域中心
-            const 對話框樣式 = 對話框.style;
-            對話框樣式.position = 'fixed';
-            
+            // 對話框位置更新函數
+            let 更新對話框位置請求ID = null;
+            let 上次滾動時間 = 0;
+
             function 更新對話框位置() {
-                const 可視區域高度 = window.innerHeight;
-                const 可視區域寬度 = window.innerWidth;
+                const 當前時間 = Date.now();
+                if (當前時間 - 上次滾動時間 < 16) {
+                    更新對話框位置請求ID = requestAnimationFrame(更新對話框位置);
+                    return;
+                }
+                上次滾動時間 = 當前時間;
+
+                const 視窗高度 = window.innerHeight;
+                const 視窗寬度 = window.innerWidth;
                 const 對話框高度 = 對話框.offsetHeight;
                 const 對話框寬度 = 對話框.offsetWidth;
-                const 頂部 = (可視區域高度 - 對話框高度) / 2 + window.pageYOffset;
-                const 左側 = (可視區域寬度 - 對話框寬度) / 2 + window.pageXOffset;
-                對話框樣式.top = `${頂部}px`;
-                對話框樣式.left = `${左側}px`;
+
+                const 頂部位置 = Math.max(20, Math.min(
+                    視窗高度 - 對話框高度 - 20,
+                    (視窗高度 - 對話框高度) / 2
+                ));
+
+                const 左側位置 = Math.max(20, Math.min(
+                    視窗寬度 - 對話框寬度 - 20,
+                    (視窗寬度 - 對話框寬度) / 2
+                ));
+
+                對話框.style.transform = `translate(${左側位置}px, ${頂部位置}px) scale(1)`;
             }
 
-            更新對話框位置();
-            window.addEventListener('resize', 更新對話框位置);
-            window.addEventListener('scroll', 更新對話框位置);
-            
+            // 初始化位置並顯示動畫
             requestAnimationFrame(() => {
-                對話框.style.opacity = '1';
+                更新對話框位置();
+                // 強制重排後再添加動畫類
+                對話框.offsetHeight; // 觸發重排
+                對話框.classList.add('顯示');
+                遮罩.classList.add('顯示');
             });
 
+            // 監聽滾動和調整視窗大小事件
+            function 滾動處理() {
+                if (更新對話框位置請求ID) {
+                    cancelAnimationFrame(更新對話框位置請求ID);
+                }
+                更新對話框位置請求ID = requestAnimationFrame(更新對話框位置);
+            }
+
+            window.addEventListener('scroll', 滾動處理, { passive: true });
+            window.addEventListener('resize', 滾動處理);
+
+            // 點擊遮罩關閉對話框
+            遮罩.addEventListener('click', (事件) => {
+                if (事件.target === 遮罩) {
+                    關閉任務對話框();
+                }
+            });
+
+            // 清理函數
+            function 清理監聽器() {
+                window.removeEventListener('scroll', 滾動處理);
+                window.removeEventListener('resize', 滾動處理);
+                if (更新對話框位置請求ID) {
+                    cancelAnimationFrame(更新對話框位置請求ID);
+                }
+            }
+
+            // 在關閉對話框時清理監聽器
+            const 原關閉按鈕 = 對話框.querySelector('button[type="button"]');
+            原關閉按鈕.addEventListener('click', 清理監聽器);
+
+            // 在表單提交時清理監聽器
+            const 表單 = 對話框.querySelector('form');
+            表單.addEventListener('submit', 清理監聽器);
+
+            // 時間輸入處理
             const 時間輸入 = 對話框.querySelector('input[type="time"]');
             時間輸入.addEventListener('input', function() {
                 const 時間值 = this.value.split(':');
@@ -857,23 +1050,23 @@
             });
         }
 
-
         function 關閉任務對話框() {
             const 對話框 = document.querySelector('.任務對話框');
-            const 背景 = document.querySelector('.對話框背景');
-            const 日期格 = 背景?.closest('.日期格');
+            const 遮罩 = document.querySelector('.全局遮罩');
             
             if (對話框) {
-                對話框.style.opacity = '0';
+                // 移除動畫類觸發淡出效果
+                對話框.classList.remove('顯示');
+                遮罩?.classList.remove('顯示');
+                
+                // 等待動畫完成後移除元素
                 setTimeout(() => {
                     對話框.remove();
-                    背景?.remove();
-                    if (日期格) {
-                        日期格.style.position = '';
-                    }
-                }, 300);
+                    遮罩?.remove();
+                }, 200); // 與 CSS 過渡時間相匹配
             }
-                    // 移除當前活動日期格的反灰樣式
+
+            // 移除當前活動日期格的反灰樣式
             if (當前活動日期格) {
                 當前活動日期格.classList.remove('active');
                 當前活動日期格 = null;
