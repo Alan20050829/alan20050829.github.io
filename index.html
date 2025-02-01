@@ -580,15 +580,40 @@
         let touchStartX = 0;
         let touchEndX = 0;
 
-        document.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, false);
+        let 長按計時器;
+        let 是否長按 = false;
+        const 長按閾值 = 500; // 毫秒
         
-        document.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, false);
+        document.addEventListener('touchstart', (e) => {
+            長按計時器 = setTimeout(() => {
+                是否長按 = true;
+                // 顯示某種視覺反饋,表示可以滑動了
+                document.body.classList.add('可滑動');
+            }, 長按閾值);
+        }, { passive: true });
         
+        document.addEventListener('touchend', (e) => {
+            clearTimeout(長按計時器);
+            if (是否長按) {
+                const 滑動距離 = e.changedTouches[0].screenX - e.changedTouches[0].clientX;
+                if (Math.abs(滑動距離) > 50) {
+                    if (滑動距離 > 0) {
+                        切換期間(-1);
+                    } else {
+                        切換期間(1);
+                    }
+                }
+            }
+            是否長按 = false;
+            document.body.classList.remove('可滑動');
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!是否長按) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+                
         function handleSwipe() {
             const minSwipeDistance = 50;
             const swipeDistance = touchEndX - touchStartX;
