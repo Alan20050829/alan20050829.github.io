@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>無敵小本本</title>
+    <style>
+        :root {
+            --主要色: #E67E22;     /* 明亮的橙色 */
+            --警示色: #C0392B;     /* 深紅色用於警示 */
+            --成功色: #27AE60;     /* 綠色用於成功，增加對比 */
+            --文字色: #34495E;     /* 深藍灰色用於文字 */
+            --背景色: #FEF5E7;     /* 非常淺的米色用於背景 */
+            --假日色: #FDEDEC;     /* 淺粉色用於假日 */
+            --page-bg: #FFFFFF;    /* 純白色用於頁面背景 */
+            --page-shadow: rgba(211, 84, 0, 0.2); /* 橙色陰影 */
+            --hover-bg: #FDF2E9;   /* 懸停背景色 */
+            --border-color: #F5B041; /* 邊框顏色 */
+            --task-bg: #FEF9E7;    /* 任務背景色 */
+        }
+        * {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .視圖容器 {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+
+        .月曆表格, .週視圖表格 {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .向左滑出 {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        .向右滑出 {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        .滑入 {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, '微軟正黑體', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: var(--背景色);
+            color: var(--文字色);
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .主容器 {
+            margin: 0 auto;
+            padding: 12px;
+            max-width: 100%;
+            background: white;
+            box-shadow: 0 2px 4px var(--page-shadow);
+        }
+        @media (min-width: 768px) {
+            .主容器 {
+                margin: 20px auto;
+                padding: 20px;
+                max-width: 1400px;
+                border-radius: 12px;
+            }
+        }
+
+
+        .book-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            pointer-events: none;
+            background: none;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .book {
+            width: 80vw;
+            height: 80vh;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateY(-30deg);
+            transition: all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            animation: book-entry 1.5s ease-out forwards;
+            max-width: 1200px;
+            max-height: 800px;
+        }
+
+        @keyframes book-entry {
+            0% {
+                opacity: 0;
+                transform: translate(0, 100px) rotateY(-180deg);
+            }
+            70% {
+                opacity: 1;
+                transform: translate(0, 0) rotateY(-30deg);
+            }
+            100% {
+                opacity: 1;
+                transform: rotateY(0deg);
+            }
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: none;
+            transform-origin: left center;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 1.5s;
+        }
+
+        .page-front {
+            transform: rotateY(0deg);
+            z-index: 2;
+        }
+
+        .page-back {
+            transform: rotateY(180deg);
+            z-index: 1;
+        }
+
+        .page-content {
+            text-align: center;
+            padding: 20px;
+            font-size: 2.5em;
+        }
+
+        .控制列 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .控制列 {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        .視圖按鈕 {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--主要色);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.2s;
+        }
+
+
+        .視圖按鈕.活動 {
+            background: var(--成功色);
+        }
+
+        .月曆標頭 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 0 0.5rem;
+        }
+
+        .月曆標頭 h2 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        @media (min-width: 768px) {
+            .月曆標頭 h2 {
+                font-size: 1.8rem;
+            }
+        }
+
+        .月曆表格 {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        @media (min-width: 768px) {
+            .月曆表格 {
+                gap: 8px;
+            }
+        }
+
+        #年份選擇器, #月份選擇器, .分隔符 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            font-family: inherit;
+            text-align: center;
+            text-align-last: center;
+        }
+
+        .年份選擇器, .月份選擇器 {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            border: none;
+            background: none;
+            color: var(--主要色);
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            position: relative;
+            text-align: center !important;
+            text-align-last: center !important;
+        }
+
+        .年份選擇器:hover, .月份選擇器:hover {
+            text-shadow: 3px 3px 6px rgba(230, 126, 34, 0.6);
+            font-weight: 900;
+            -webkit-text-stroke: 0.7px var(--主要色);
+            color: var(--主要色);
+        }
+
+        .年份選擇器 option, .月份選擇器 option {
+            background-color: white;
+            color: #333333;  /* 改成深灰近黑色 */
+            text-align: center !important;
+            text-align-last: center !important;
+            font-size: 1.4rem;  /* 縮小字體 */
+            padding: 5px;
+            margin: 0;
+            border: none;
+            font-weight: normal;  /* 改回正常字重 */
+            min-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .年份選擇器 option:hover, .月份選擇器 option:hover {
+            font-weight: 600;  /* 降低懸停時的字重 */
+            color: #333333;  /* 保持黑色 */
+            transform: none !important;
+            padding: 5px !important;
+            margin: 0 !important;
+        }
+
+        .導航按鈕 {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--主要色);
+            padding: 0 1rem;
+        }
+
+        .月曆表格, .週視圖表格 {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .日期格 {
+            padding: 0.5rem;
+            min-height: 80px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            background: white;
+            font-size: 0.9rem;
+            touch-action: manipulation;
+        }
+
+        @media (min-width: 768px) {
+            .日期格 {
+                padding: 1rem;
+                min-height: 150px;
+                font-size: 1rem;
+            }
+        }
+
+
+        .日期格:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 6px rgba(210, 105, 30, 0.2);
+        }
+
+        .非本月 {
+            background: var(--背景色);
+            color: #999;
+        }
+
+        .假日 {
+            background: var(--假日色);
+        }
+
+        .任務項目 {
+            padding: 6px;
+            margin: 4px 0;
+            background: var(--task-bg);
+            border-left: 3px solid var(--優先級顏色);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            touch-action: manipulation;
+        }
+
+        @media (min-width: 768px) {
+            .任務項目 {
+                padding: 8px;
+                margin: 6px 0;
+                font-size: 1rem;
+            }
+        }
+
+        .任務對話框 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            opacity: 0;
+            transform: scale(0.7);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
+        .任務對話框.顯示 {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .全局遮罩 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s ease-out;
+        }
+
+        .全局遮罩.顯示 {
+            opacity: 1;
+        }
+
+        .對話框背景 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(230, 126, 34, 0.1);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .任務表單 {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .任務表單 input,
+        .任務表單 select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+
+        .按鈕組 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .按鈕組 button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .按鈕組 button[type="submit"] {
+            background: var(--主要色);
+            color: white;
+        }
+
+        .按鈕組 button[type="button"] {
+            background: #eee;
+        }
+
+        .節日標示 {
+            font-size: 0.8em;
+            color: var(--警示色);
+            margin-top: 4px;
+        }
+
+        .週視圖表格 {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .週列 {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 8px;
+        }
+
+        @media (max-width: 767px) {
+            .book-container {
+                display: none;
+            }
+        }
+
+        /* 增加觸控反饋 */
+        @media (hover: none) {
+            .視圖按鈕:active,
+            .任務項目:active,
+            .日期格:active {
+                opacity: 0.7;
+            }
+        }
+
+        /* 優化移動端滾動體驗 */
+        .週視圖表格,
+        .月曆表格 {
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        .星期標頭 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            padding: 8px;
+            background: var(--背景色);
+            border-radius: 8px;
+        }
+
+        .週日期格 {
+            min-height: 100px;
+            padding: 1rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .週日期格:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 6px rgba(210, 105, 30, 0.2);
+        }
+
+        .任務表單 input[type="text"],
+        .任務表單 input[type="time"],
+        .任務表單 select {
+            text-align: center;
+            text-align-last: center;
+        }
+
+        .任務表單 select option {
+            text-align: center;
+        }
+
+        .日期格.active,
+        .週日期格.active {
+            background-color: var(--hover-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        .日期格.active:hover,
+        .週日期格.active:hover {
+            background-color: var(--task-bg);
+        }
+        select {
+            -webkit-appearance: none;
+            background: #fff url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23E67E22' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center/16px 16px;
+            padding-right: 24px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 書本動畫容器 -->
+    <div class="book-container" id="bookAnimation">
+        <div class="book">
+            <div class="page page-front">
+                <div class="page-content">
+                    <h1>智能計劃本</h1>
+                    <p>輕鬆管理您的每一天</p>
+                </div>
+            </div>
+            <div class="page page-back">
+                <div class="page-content">
+                    <h2>開始您的規劃</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="主容器">
+        <div class="控制列">
+            <button class="視圖按鈕" id="月視圖按鈕" onclick="切換視圖('月')">📅 月視圖</button>
+            <button class="視圖按鈕" id="週視圖按鈕" onclick="切換視圖('週')">📆 週視圖</button>
+            <input type="file" id="匯入檔案" hidden>
+            <button class="視圖按鈕" onclick="document.getElementById('匯入檔案').click()">📥 匯入數據</button>
+            <button class="視圖按鈕" onclick="匯出資料()">📤 匯出數據</button>
+        </div>
+
+        <div class="月曆標頭">
+            <button class="導航按鈕" onclick="切換期間(-1)">◀</button>
+            <h2>
+                <select id="年份選擇器" class="年份選擇器" onchange="更改年份(this.value)">
+                </select>
+                <span class="分隔符">年</span>
+                <select id="月份選擇器" class="年份選擇器" onchange="更改月份(this.value)">
+                </select>
+                <span class="分隔符">月</span>
+            </h2>
+            <button class="導航按鈕" onclick="切換期間(1)">▶</button>
+        </div>
+
+        <div id="日曆容器"></div>
+    </div>
+
+    <script>
+        // 書本動畫腳本
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const bookAnimation = document.getElementById('bookAnimation');
+                bookAnimation.style.opacity = '0';
+                setTimeout(() => {
+                    bookAnimation.style.display = 'none';
+                }, 500);
+            }, 2500);
+        });
+
+        // 資料管理系統
+        let 當前視圖模式 = '月';
+        let 當前月份 = new Date().getMonth();
+        let 當前年份 = new Date().getFullYear();
+        let 當前週數 = Math.floor((new Date().getDate() - 1) / 7);
+        let 任務資料 = JSON.parse(localStorage.getItem('plan-data')) || [];
+        let 當前活動日期格 = null;
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+        
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+        
+        function handleSwipe() {
+            const minSwipeDistance = 50;
+            const swipeDistance = touchEndX - touchStartX;
+            
+            if (Math.abs(swipeDistance) > minSwipeDistance) {
+                if (swipeDistance > 0) {
+                    切換期間(-1); // 向右滑動，顯示上一個月/週
+                } else {
+                    切換期間(1);  // 向左滑動，顯示下一個月/週
+                }
+            }
+        }
+
+        // 優化滾動效能
+        let isScrolling;
+        window.addEventListener('scroll', () => {
+            clearTimeout(isScrolling);
+            document.body.classList.add('is-scrolling');
+            
+            isScrolling = setTimeout(() => {
+                document.body.classList.remove('is-scrolling');
+            }, 100);
+        }, false);
+        // 初始化年份選擇器
+        function 初始化年份選擇器() {
+            const 選擇器 = document.getElementById('年份選擇器');
+            const 當前年份 = new Date().getFullYear();
+            const 起始年份 = 當前年份 - 20;
+            const 結束年份 = 當前年份 + 20;
+            
+            選擇器.innerHTML = '';
+            for (let 年 = 起始年份; 年 <= 結束年份; 年++) {
+                const 選項 = document.createElement('option');
+                選項.value = 年;
+                選項.textContent = `${年}`;
+                if (年 === 當前年份) 選項.selected = true;
+                選擇器.appendChild(選項);
+            }
+
+            let 滾輪計數器 = 0;
+            選擇器.addEventListener('wheel', (事件) => {
+                事件.preventDefault();
+                滾輪計數器++;
+                
+                // 每2次滾輪才觸發一次變化
+                if (滾輪計數器 % 2 === 0) {
+                    const 方向 = 事件.deltaY > 0 ? 1 : -1;
+                    const 新索引 = 選擇器.selectedIndex + 方向;
+                    
+                    if (新索引 >= 0 && 新索引 < 選擇器.options.length) {
+                        選擇器.selectedIndex = 新索引;
+                        選擇器.dispatchEvent(new Event('change'));
+                    }
+                }
+            });
+        }
+
+        function 初始化月份選擇器() {
+            const 月份選擇器 = document.getElementById('月份選擇器');
+            
+            月份選擇器.innerHTML = '';
+            for (let 月 = 1; 月 <= 12; 月++) {
+                const 選項 = document.createElement('option');
+                選項.value = 月 - 1;
+                選項.textContent = `${月}`;
+                if (月 - 1 === 當前月份) 選項.selected = true;
+                月份選擇器.appendChild(選項);
+            }
+            
+            let 滾輪計數器 = 0;
+            月份選擇器.addEventListener('wheel', (事件) => {
+                事件.preventDefault();
+                滾輪計數器++;
+                
+                // 每2次滾輪才觸發一次變化
+                if (滾輪計數器 % 2 === 0) {
+                    const 方向 = 事件.deltaY > 0 ? 1 : -1;
+                    let 新索引 = 月份選擇器.selectedIndex + 方向;
+                    
+                    // 實現循環邏輯
+                    if (新索引 < 0) {
+                        新索引 = 11; // 如果向上滾動超過第一個，跳到最後一個（12月）
+                    } else if (新索引 >= 月份選擇器.options.length) {
+                        新索引 = 0; // 如果向下滾動超過最後一個，跳到第一個（1月）
+                    }
+                    
+                    月份選擇器.selectedIndex = 新索引;
+                    月份選擇器.dispatchEvent(new Event('change'));
+                }
+            });
+        }
+
+        function 更新視圖按鈕狀態() {
+            document.getElementById('月視圖按鈕').classList.toggle('活動', 當前視圖模式 === '月');
+            document.getElementById('週視圖按鈕').classList.toggle('活動', 當前視圖模式 === '週');
+        }
+
+        function 切換視圖(模式) {
+            當前視圖模式 = 模式;
+            更新視圖按鈕狀態();
+            // 關閉任務對話框
+            關閉任務對話框();
+            渲染日曆();
+        }
+
+        function 更改年份(年份) {
+            當前年份 = parseInt(年份);
+            // 關閉任務對話框
+            關閉任務對話框();
+            渲染日曆();
+        }
+
+        function 更改月份(月份) {
+            當前月份 = parseInt(月份);
+            // 關閉任務對話框
+            關閉任務對話框();
+            渲染日曆();
+        }
+
+        function 切換期間(增減值) {
+            const 舊容器 = document.querySelector('.視圖容器');
+            
+            舊容器.style.transition = 'transform 0.3s ease-in-out';
+            舊容器.style.transform = 增減值 > 0 ? 'translateX(-100%)' : 'translateX(100%)';
+            舊容器.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (當前視圖模式 === '月') {
+                    當前月份 += 增減值;
+                    if (當前月份 < 0) {
+                        當前月份 = 11;
+                        當前年份--;
+                    } else if (當前月份 > 11) {
+                        當前月份 = 0;
+                        當前年份++;
+                    }
+                } else {
+                    當前週數 += 增減值;
+                    更新週視圖日期();
+                }
+                
+                // 關閉任務對話框
+                關閉任務對話框();
+                
+                渲染日曆();
+                const 新容器 = document.querySelector('.視圖容器');
+                新容器.style.transition = 'none';
+                新容器.style.transform = 增減值 > 0 ? 'translateX(100%)' : 'translateX(-100%)';
+                新容器.style.opacity = '0';
+                
+                requestAnimationFrame(() => {
+                    新容器.style.transition = 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
+                    新容器.style.transform = 'translateX(0)';
+                    新容器.style.opacity = '1';
+                });
+            }, 300);
+        }
+
+        function 更新週視圖日期() {
+            const 基準日期 = new Date(當前年份, 當前月份, 1 + (當前週數 * 7));
+            const 本月天數 = new Date(當前年份, 當前月份 + 1, 0).getDate();
+            
+            let 新日期 = 1 + (當前週數 * 7);
+            if (新日期 > 本月天數) {
+                當前週數 = 0;
+                當前月份++;
+                if (當前月份 > 11) {
+                    當前月份 = 0;
+                    當前年份++;
+                }
+            } else if (新日期 < 1) {
+                當前月份--;
+                if (當前月份 < 0) {
+                    當前月份 = 11;
+                    當前年份--;
+                }
+                const 上月天數 = new Date(當前年份, 當前月份 + 1, 0).getDate();
+                當前週數 = Math.floor((上月天數 - 1) / 7);
+            }
+        }
+
+        function 渲染日曆() {
+            const 容器 = document.getElementById('日曆容器');
+            const 新容器 = document.createElement('div');
+            新容器.className = '視圖容器';
+            
+            if (當前視圖模式 === '月') {
+                渲染月視圖(新容器);
+            } else {
+                渲染週視圖(新容器);
+            }
+
+            容器.innerHTML = '';
+            容器.appendChild(新容器);
+            
+            document.getElementById('年份選擇器').value = 當前年份;
+            document.getElementById('月份選擇器').value = 當前月份;
+        }
+
+        function 渲染月視圖(容器) {
+            const 表格 = document.createElement('div');
+            表格.className = '月曆表格';
+
+            ['日', '一', '二', '三', '四', '五', '六'].forEach(星期 => {
+                const 標頭 = document.createElement('div');
+                標頭.textContent = 星期;
+                標頭.style.fontWeight = 'bold';
+                標頭.style.textAlign = 'center';
+                標頭.style.padding = '8px';
+                表格.appendChild(標頭);
+            });
+
+            const 月首 = new Date(當前年份, 當前月份, 1);
+            const 月末 = new Date(當前年份, 當前月份 + 1, 0);
+
+            let 當前日期 = new Date(月首);
+            當前日期.setDate(月首.getDate() - 月首.getDay());
+
+            while (當前日期 <= 月末 || 當前日期.getDay() !== 0) {
+                const cellDate = new Date(當前日期);
+                const 日期格 = 創建日期格(cellDate);
+                表格.appendChild(日期格);
+                當前日期.setDate(當前日期.getDate() + 1);
+            }
+
+            容器.appendChild(表格);
+        }
+
+        function 創建日期格(日期) {
+            const 日期格 = document.createElement('div');
+            const 是本月 = 日期.getMonth() === 當前月份;
+            
+            日期格.className = '日期格';
+            if (!是本月) 日期格.classList.add('非本月');
+            if (日期.getDay() === 0 || 日期.getDay() === 6) 日期格.classList.add('假日');
+
+            const 日期標頭 = document.createElement('div');
+            日期標頭.className = '日期標頭';
+
+            if (當前視圖模式 === '週') {
+                日期標頭.innerHTML = `
+                    <h3>${日期.toLocaleDateString('zh-Hant', { month: 'long', day: 'numeric' })}</h3>
+                    <small>${日期.toLocaleDateString('zh-Hant', { weekday: 'long' })}</small>
+                    ${取得節日標示(日期)}
+                `;
+            } else {
+                日期標頭.innerHTML = `
+                    <h3>${日期.getDate()}</h3>
+                    ${取得節日標示(日期)}
+                `;
+            }
+
+            const 任務容器 = document.createElement('div');
+            任務容器.className = '任務容器';
+            任務容器.innerHTML = 渲染當日任務(日期);
+
+            日期格.appendChild(日期標頭);
+            日期格.appendChild(任務容器);
+
+            日期格.onclick = (事件) => {
+                if (事件.target === 日期格 || 事件.target === 任務容器 || 事件.target === 日期標頭) {
+                    顯示任務對話框(日期, null, 事件);
+                }
+            };
+
+            return 日期格;
+        }
+
+        function 渲染週視圖(容器) {
+            const 表格 = document.createElement('div');
+            表格.className = '週視圖表格';
+
+            const 星期列表 = ['日', '一', '二', '三', '四', '五', '六'];
+            const 基準日期 = new Date(當前年份, 當前月份, 1 + (當前週數 * 7));
+            let 當前日期 = new Date(基準日期);
+            當前日期.setDate(當前日期.getDate() - 當前日期.getDay());
+
+            for (let i = 0; i < 7; i++) {
+                const 週列 = document.createElement('div');
+                週列.className = '週列';
+
+                const 星期標頭 = document.createElement('div');
+                星期標頭.className = '星期標頭';
+                星期標頭.textContent = `星期${星期列表[i]}`;
+
+                const 日期格 = 創建週日期格(new Date(當前日期));
+
+                週列.appendChild(星期標頭);
+                週列.appendChild(日期格);
+                表格.appendChild(週列);
+                
+                當前日期.setDate(當前日期.getDate() + 1);
+            }
+
+            容器.appendChild(表格);
+        }
+
+        function 創建週日期格(日期) {
+            const 日期格 = document.createElement('div');
+            日期格.className = '週日期格';
+            if (日期.getDay() === 0 || 日期.getDay() === 6) {
+                日期格.classList.add('假日');
+            }
+
+            const 日期標頭 = document.createElement('div');
+            日期標頭.innerHTML = `
+                <h3>${日期.toLocaleDateString('zh-Hant', { month: 'long', day: 'numeric' })}</h3>
+                ${取得節日標示(日期)}
+            `;
+
+            const 任務容器 = document.createElement('div');
+            任務容器.className = '任務容器';
+            任務容器.innerHTML = 渲染當日任務(日期);
+
+            日期格.appendChild(日期標頭);
+            日期格.appendChild(任務容器);
+
+            日期格.addEventListener('click', (事件) => {
+                if (事件.target === 日期格 || 事件.target === 任務容器 || 事件.target === 日期標頭) {
+                    顯示任務對話框(日期, null, 事件);
+                }
+            });
+
+            return 日期格;
+        }
+
+        function 顯示任務對話框(日期, 任務 = null, 事件) {
+            // 先清除已存在的對話框和遮罩
+            關閉任務對話框();
+
+            // 創建全局遮罩
+            const 遮罩 = document.createElement('div');
+            遮罩.className = '全局遮罩';
+            document.body.appendChild(遮罩);
+
+            // 為點擊的日期格添加反灰樣式
+            const 點擊格 = 事件.currentTarget;
+            點擊格.classList.add('active');
+
+            // 移除之前活動日期格的反灰樣式
+            if (當前活動日期格 && 當前活動日期格 !== 點擊格) {
+                當前活動日期格.classList.remove('active');
+            }
+            當前活動日期格 = 點擊格;
+
+            const 對話框 = document.createElement('div');
+            對話框.className = '任務對話框';
+            
+            const 年 = 日期.getFullYear();
+            const 月 = 日期.getMonth();
+            const 日 = 日期.getDate();
+
+            對話框.innerHTML = `
+                <form class="任務表單" onsubmit="提交任務表單(event, ${任務?.id || 'null'})">
+                    <input type="hidden" name="年" value="${年}">
+                    <input type="hidden" name="月" value="${月}">
+                    <input type="hidden" name="日" value="${日}">
+                    <input type="text" name="內容" placeholder="任務內容" value="${任務?.內容 || ''}" required>
+                    <input type="time" name="時間" 
+                        value="${任務?.時間戳 || ''}" 
+                        min="00:00" 
+                        max="23:59">
+                    <select name="優先級">
+                        <option value="高" ${任務?.優先級 === '高' ? 'selected' : ''}>高優先級</option>
+                        <option value="中" ${任務?.優先級 === '中' || !任務 ? 'selected' : ''}>中優先級</option>
+                        <option value="低" ${任務?.優先級 === '低' ? 'selected' : ''}>低優先級</option>
+                    </select>
+                    <div class="按鈕組">
+                        <button type="button" onclick="關閉任務對話框()">取消</button>
+                        <button type="submit">確定</button>
+                    </div>
+                </form>
+            `;
+            
+            document.body.appendChild(對話框);
+
+            // 對話框位置更新函數
+            let 更新對話框位置請求ID = null;
+            let 上次滾動時間 = 0;
+
+            function 更新對話框位置() {
+                const 當前時間 = Date.now();
+                if (當前時間 - 上次滾動時間 < 16) {
+                    更新對話框位置請求ID = requestAnimationFrame(更新對話框位置);
+                    return;
+                }
+                上次滾動時間 = 當前時間;
+
+                const 視窗高度 = window.innerHeight;
+                const 視窗寬度 = window.innerWidth;
+                const 對話框高度 = 對話框.offsetHeight;
+                const 對話框寬度 = 對話框.offsetWidth;
+
+                const 頂部位置 = Math.max(20, Math.min(
+                    視窗高度 - 對話框高度 - 20,
+                    (視窗高度 - 對話框高度) / 2
+                ));
+
+                const 左側位置 = Math.max(20, Math.min(
+                    視窗寬度 - 對話框寬度 - 20,
+                    (視窗寬度 - 對話框寬度) / 2
+                ));
+
+                對話框.style.transform = `translate(${左側位置}px, ${頂部位置}px) scale(1)`;
+            }
+
+            // 初始化位置並顯示動畫
+            requestAnimationFrame(() => {
+                更新對話框位置();
+                // 強制重排後再添加動畫類
+                對話框.offsetHeight; // 觸發重排
+                對話框.classList.add('顯示');
+                遮罩.classList.add('顯示');
+            });
+
+            // 監聽滾動和調整視窗大小事件
+            function 滾動處理() {
+                if (更新對話框位置請求ID) {
+                    cancelAnimationFrame(更新對話框位置請求ID);
+                }
+                更新對話框位置請求ID = requestAnimationFrame(更新對話框位置);
+            }
+
+            window.addEventListener('scroll', 滾動處理, { passive: true });
+            window.addEventListener('resize', 滾動處理);
+
+            // 點擊遮罩關閉對話框
+            遮罩.addEventListener('click', (事件) => {
+                if (事件.target === 遮罩) {
+                    關閉任務對話框();
+                }
+            });
+
+            // 清理函數
+            function 清理監聽器() {
+                window.removeEventListener('scroll', 滾動處理);
+                window.removeEventListener('resize', 滾動處理);
+                if (更新對話框位置請求ID) {
+                    cancelAnimationFrame(更新對話框位置請求ID);
+                }
+            }
+
+            // 在關閉對話框時清理監聽器
+            const 原關閉按鈕 = 對話框.querySelector('button[type="button"]');
+            原關閉按鈕.addEventListener('click', 清理監聽器);
+
+            // 在表單提交時清理監聽器
+            const 表單 = 對話框.querySelector('form');
+            表單.addEventListener('submit', 清理監聽器);
+
+            // 時間輸入處理
+            const 時間輸入 = 對話框.querySelector('input[type="time"]');
+            時間輸入.addEventListener('input', function() {
+                const 時間值 = this.value.split(':');
+                const 小時 = parseInt(時間值[0]);
+                const 分鐘 = 時間值[1];
+                const 格式化小時 = 小時 % 24;
+                this.value = `${格式化小時.toString().padStart(2, '0')}:${分鐘}`;
+            });
+        }
+
+        function 關閉任務對話框() {
+            const 對話框 = document.querySelector('.任務對話框');
+            const 遮罩 = document.querySelector('.全局遮罩');
+            
+            if (對話框) {
+                // 移除動畫類觸發淡出效果
+                對話框.classList.remove('顯示');
+                遮罩?.classList.remove('顯示');
+                
+                // 等待動畫完成後移除元素
+                setTimeout(() => {
+                    對話框.remove();
+                    遮罩?.remove();
+                }, 200); // 與 CSS 過渡時間相匹配
+            }
+
+            // 移除當前活動日期格的反灰樣式
+            if (當前活動日期格) {
+                當前活動日期格.classList.remove('active');
+                當前活動日期格 = null;
+            }
+        }
+
+        function 提交任務表單(事件, 任務ID) {
+            事件.preventDefault();
+            const 表單數據 = new FormData(事件.target);
+
+            const 年 = parseInt(表單數據.get('年'));
+            const 月 = parseInt(表單數據.get('月'));
+            const 日 = parseInt(表單數據.get('日'));
+            const 時間輸入 = 表單數據.get('時間');
+
+            const 本地日期字符串 = `${年}-${(月 + 1).toString().padStart(2, '0')}-${日.toString().padStart(2, '0')}`;
+
+            let 時間戳 = '';
+            if (時間輸入) {
+                const [小時, 分鐘] = 時間輸入.split(':');
+                時間戳 = `${小時.padStart(2, '0')}:${分鐘.padStart(2, '0')}`;
+            }
+
+            const 任務數據 = {
+                id: 任務ID || Date.now(),
+                內容: 表單數據.get('內容'),
+                日期: 本地日期字符串,
+                時間戳: 時間戳,
+                優先級: 表單數據.get('優先級'),
+                完成: false
+            };
+
+            if (任務ID) {
+                任務資料 = 任務資料.map(任務 => 任務.id === 任務ID ? 任務數據 : 任務);
+            } else {
+                任務資料.push(任務數據);
+            }
+            
+            儲存資料();
+            關閉任務對話框();
+            渲染日曆();
+        }
+
+        function 渲染當日任務(日期) {
+            const 年 = 日期.getFullYear();
+            const 月 = (日期.getMonth() + 1).toString().padStart(2, '0');
+            const 日 = 日期.getDate().toString().padStart(2, '0');
+            const 目標日期字符串 = `${年}-${月}-${日}`;
+
+            const 當日任務 = 任務資料
+                .filter(任務 => 任務.日期 === 目標日期字符串)
+                .sort((a, b) => {
+                    if (a.時間戳 === b.時間戳) return a.id - b.id;
+                    if (!a.時間戳) return 1;
+                    if (!b.時間戳) return -1;
+                    return a.時間戳.localeCompare(b.時間戳);
+                });
+
+            return 當日任務.map(任務 => `
+                <div class="任務項目" 
+                     style="--優先級顏色: ${取得優先級顏色(任務.優先級)}" 
+                     data-task-id="${任務.id}"
+                     onclick="編輯任務(event, ${任務.id})">
+                    <span>${任務.內容}${任務.時間戳 ? ` (${任務.時間戳})` : ''}</span>
+                    <div>
+                        <input type="checkbox" 
+                               ${任務.完成 ? 'checked' : ''} 
+                               onclick="切換任務狀態(event, ${任務.id})">
+                        <button onclick="刪除任務(event, ${任務.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function 編輯任務(事件, 任務ID) {
+            事件.stopPropagation();
+            const 任務 = 任務資料.find(任務 => 任務.id === 任務ID);
+            if (任務) {
+                const [年, 月, 日] = 任務.日期.split('-').map(Number);
+                const 任務日期 = new Date(年, 月 - 1, 日);
+                顯示任務對話框(任務日期, 任務);
+            }
+        }
+
+        function 刪除任務(事件, id) {
+            事件.stopPropagation();
+            if (confirm('確定要刪除此任務？')) {
+                任務資料 = 任務資料.filter(任務 => 任務.id !== id);
+                儲存資料();
+                渲染日曆();
+            }
+        }
+
+        function 切換任務狀態(事件, id) {
+            事件.stopPropagation();
+            任務資料 = 任務資料.map(任務 => 
+                任務.id === id ? { ...任務, 完成: !任務.完成 } : 任務
+            );
+            儲存資料();
+            渲染日曆();
+        }
+
+        function 取得節日標示(日期) {
+            const 節日表 = {
+                '2024': {
+                    '1-1': '元旦',
+                    '2-10': '春節',
+                    '2-11': '春節',
+                    '2-12': '春節',
+                    '2-13': '春節',
+                    '2-14': '春節',
+                    '4-4': '清明節',
+                    '5-1': '勞動節',
+                    '6-10': '端午節',
+                    '9-17': '中秋節',
+                    '10-10': '國慶日'
+                }
+            };
+            const 月日 = `${日期.getMonth()+1}-${日期.getDate()}`;
+            const 節日 = 節日表[日期.getFullYear()]?.[月日];
+            return 節日 ? `<div class="節日標示">${節日}</div>` : '';
+        }
+
+        function 儲存資料() {
+            localStorage.setItem('plan-data', JSON.stringify(任務資料));
+        }
+
+        function 匯出資料() {
+            const 資料字串 = JSON.stringify(任務資料);
+            const 檔案 = new Blob([資料字串], { type: 'application/json' });
+            const 下載連結 = document.createElement('a');
+            下載連結.href = URL.createObjectURL(檔案);
+            下載連結.download = `計劃備份_${new Date().toISOString().slice(0,10)}.json`;
+            下載連結.click();
+        }
+
+        function 取得優先級顏色(優先級) {
+            return {
+                '高': '#C0392B',  // 深紅色
+                '中': '#E67E22',  // 橙色
+                '低': '#27AE60'   // 綠色
+            }[優先級] || '#E67E22';
+        }
+
+        // 初始化設定
+        document.getElementById('匯入檔案').addEventListener('change', function(e) {
+            const 檔案 = e.target.files[0];
+            const 讀取器 = new FileReader();
+            讀取器.onload = () => {
+                try {
+                    任務資料 = JSON.parse(讀取器.result).map(任務 => {
+                        if (typeof 任務.時間 === 'number') {
+                            const 日期對象 = new Date(任務.時間);
+                            return {
+                                ...任務,
+                                日期: 日期對象.toISOString().split('T')[0],
+                                時間: undefined
+                            };
+                        }
+                        return 任務;
+                    });
+                    儲存資料();
+                    渲染日曆();
+                } catch {
+                    alert('檔案格式錯誤！');
+                }
+            };
+            讀取器.readAsText(檔案);
+        });
+
+        // 初始化
+        初始化年份選擇器();
+        初始化月份選擇器(); 
+        更新視圖按鈕狀態();
+        渲染日曆();
+    </script>
+</body>
+</html>
