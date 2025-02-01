@@ -2,6 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>無敵小本本</title>
     <style>
         :root {
@@ -22,36 +23,15 @@
             touch-action: manipulation;
         }
 
-        .視圖容器 {
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-        }
-
-        .月曆表格, .週視圖表格 {
-            transition: all 0.3s ease-in-out;
-        }
-
-        .向左滑出 {
-            transform: translateX(-100%);
-            opacity: 0;
-        }
-
-        .向右滑出 {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-
-        .滑入 {
-            transform: translateX(0);
-            opacity: 1;
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow-x: hidden;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, '微軟正黑體', sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
             background: var(--背景色);
             color: var(--文字色);
             -webkit-text-size-adjust: 100%;
@@ -63,89 +43,21 @@
             max-width: 100%;
             background: white;
             box-shadow: 0 2px 4px var(--page-shadow);
+            min-height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
         @media (min-width: 768px) {
             .主容器 {
                 margin: 20px auto;
                 padding: 20px;
                 max-width: 1400px;
                 border-radius: 12px;
+                min-height: calc(100vh - 40px);
             }
-        }
-
-
-        .book-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            pointer-events: none;
-            background: none;
-            opacity: 1;
-            transition: opacity 0.5s ease-out;
-        }
-
-        .book {
-            width: 80vw;
-            height: 80vh;
-            position: relative;
-            transform-style: preserve-3d;
-            transform: rotateY(-30deg);
-            transition: all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            animation: book-entry 1.5s ease-out forwards;
-            max-width: 1200px;
-            max-height: 800px;
-        }
-
-        @keyframes book-entry {
-            0% {
-                opacity: 0;
-                transform: translate(0, 100px) rotateY(-180deg);
-            }
-            70% {
-                opacity: 1;
-                transform: translate(0, 0) rotateY(-30deg);
-            }
-            100% {
-                opacity: 1;
-                transform: rotateY(0deg);
-            }
-        }
-
-        .page {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background: none;
-            transform-origin: left center;
-            backface-visibility: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: transform 1.5s;
-        }
-
-        .page-front {
-            transform: rotateY(0deg);
-            z-index: 2;
-        }
-
-        .page-back {
-            transform: rotateY(180deg);
-            z-index: 1;
-        }
-
-        .page-content {
-            text-align: center;
-            padding: 20px;
-            font-size: 2.5em;
         }
 
         .控制列 {
@@ -153,6 +65,7 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 8px;
             margin-bottom: 1rem;
+            flex-shrink: 0;
         }
 
         @media (min-width: 768px) {
@@ -175,7 +88,6 @@
             -webkit-tap-highlight-color: transparent;
             transition: background-color 0.2s;
         }
-
 
         .視圖按鈕.活動 {
             background: var(--成功色);
@@ -200,24 +112,23 @@
             }
         }
 
-        .月曆表格 {
+        #日曆容器 {
+            flex-grow: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .月曆表格, .週視圖表格 {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 4px;
+            transition: all 0.3s ease-in-out;
         }
 
         @media (min-width: 768px) {
-            .月曆表格 {
+            .月曆表格, .週視圖表格 {
                 gap: 8px;
             }
-        }
-
-        #年份選擇器, #月份選擇器, .分隔符 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            font-family: inherit;
-            text-align: center;
-            text-align-last: center;
         }
 
         .年份選擇器, .月份選擇器 {
@@ -248,24 +159,16 @@
 
         .年份選擇器 option, .月份選擇器 option {
             background-color: white;
-            color: #333333;  /* 改成深灰近黑色 */
+            color: #333333;
             text-align: center !important;
             text-align-last: center !important;
-            font-size: 1.4rem;  /* 縮小字體 */
+            font-size: 1.4rem;
             padding: 5px;
             margin: 0;
             border: none;
-            font-weight: normal;  /* 改回正常字重 */
+            font-weight: normal;
             min-width: 100%;
             box-sizing: border-box;
-        }
-
-        .年份選擇器 option:hover, .月份選擇器 option:hover {
-            font-weight: 600;  /* 降低懸停時的字重 */
-            color: #333333;  /* 保持黑色 */
-            transform: none !important;
-            padding: 5px !important;
-            margin: 0 !important;
         }
 
         .導航按鈕 {
@@ -275,12 +178,6 @@
             cursor: pointer;
             color: var(--主要色);
             padding: 0 1rem;
-        }
-
-        .月曆表格, .週視圖表格 {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
         }
 
         .日期格 {
@@ -300,7 +197,6 @@
                 font-size: 1rem;
             }
         }
-
 
         .日期格:hover {
             transform: translateY(-3px);
@@ -339,20 +235,27 @@
 
         .任務對話框 {
             position: fixed;
-            top: 0;
-            left: 0;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
             background: white;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             z-index: 1001;
             opacity: 0;
-            transform: scale(0.7);
             transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+            width: 90% !important;
+            height: 90% !important;
+            max-width: 600px !important;
+            max-height: 80vh !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
         }
+
         .任務對話框.顯示 {
             opacity: 1;
-            transform: scale(1);
+            transform: translate(-50%, -50%) scale(1) !important;
         }
 
         .全局遮罩 {
@@ -371,18 +274,6 @@
             opacity: 1;
         }
 
-        .對話框背景 {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(230, 126, 34, 0.1);
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease-out;
-        }
-
         .任務表單 {
             display: flex;
             flex-direction: column;
@@ -396,7 +287,6 @@
             border-radius: 8px;
             font-size: 16px;
         }
-
 
         .按鈕組 {
             display: grid;
@@ -441,28 +331,6 @@
             gap: 8px;
         }
 
-        @media (max-width: 767px) {
-            .book-container {
-                display: none;
-            }
-        }
-
-        /* 增加觸控反饋 */
-        @media (hover: none) {
-            .視圖按鈕:active,
-            .任務項目:active,
-            .日期格:active {
-                opacity: 0.7;
-            }
-        }
-
-        /* 優化移動端滾動體驗 */
-        .週視圖表格,
-        .月曆表格 {
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
-        }
-
         .星期標頭 {
             display: flex;
             align-items: center;
@@ -487,17 +355,6 @@
             box-shadow: 0 3px 6px rgba(210, 105, 30, 0.2);
         }
 
-        .任務表單 input[type="text"],
-        .任務表單 input[type="time"],
-        .任務表單 select {
-            text-align: center;
-            text-align-last: center;
-        }
-
-        .任務表單 select option {
-            text-align: center;
-        }
-
         .日期格.active,
         .週日期格.active {
             background-color: var(--hover-bg);
@@ -508,58 +365,20 @@
         .週日期格.active:hover {
             background-color: var(--task-bg);
         }
+
         select {
             -webkit-appearance: none;
             background: #fff url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23E67E22' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center/16px 16px;
             padding-right: 24px;
         }
-        @media (max-width: 768px) {
-            body {
-                margin: 0;
-                padding: 0;
-            }
 
-            .主容器 {
-                margin: 0;
-                padding: 10px;
-                border-radius: 0;
-                min-height: 100vh;
-            }
-
-            .月曆表格, .週視圖表格 {
-                gap: 5px;
-            }
-
-            .日期格, .週日期格 {
-                padding: 5px;
-                min-height: 60px;
-            }
-
-            .任務項目 {
-                font-size: 0.8rem;
-                padding: 4px;
-            }
+        .可滑動 .主容器 {
+            transform: scale(0.98);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
     </style>
 </head>
 <body>
-    <!-- 書本動畫容器 -->
-    <div class="book-container" id="bookAnimation">
-        <div class="book">
-            <div class="page page-front">
-                <div class="page-content">
-                    <h1>智能計劃本</h1>
-                    <p>輕鬆管理您的每一天</p>
-                </div>
-            </div>
-            <div class="page page-back">
-                <div class="page-content">
-                    <h2>開始您的規劃</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="主容器">
         <div class="控制列">
             <button class="視圖按鈕" id="月視圖按鈕" onclick="切換視圖('月')">📅 月視圖</button>
@@ -586,17 +405,6 @@
     </div>
 
     <script>
-        // 書本動畫腳本
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const bookAnimation = document.getElementById('bookAnimation');
-                bookAnimation.style.opacity = '0';
-                setTimeout(() => {
-                    bookAnimation.style.display = 'none';
-                }, 500);
-            }, 2500);
-        });
-
         // 資料管理系統
         let 當前視圖模式 = '月';
         let 當前月份 = new Date().getMonth();
@@ -604,24 +412,27 @@
         let 當前週數 = Math.floor((new Date().getDate() - 1) / 7);
         let 任務資料 = JSON.parse(localStorage.getItem('plan-data')) || [];
         let 當前活動日期格 = null;
-        let touchStartX = 0;
-        let touchEndX = 0;
+
         let 長按計時器;
         let 是否長按 = false;
+        let 初始觸摸位置;
         const 長按閾值 = 500; // 毫秒
 
         document.addEventListener('touchstart', (e) => {
+            初始觸摸位置 = e.touches[0].clientX;
             長按計時器 = setTimeout(() => {
                 是否長按 = true;
-                // 顯示某種視覺反饋,表示可以滑動了
                 document.body.classList.add('可滑動');
+                // 添加浮起效果
+                document.querySelector('.主容器').style.transform = 'scale(0.98)';
+                document.querySelector('.主容器').style.boxShadow = '0 10px 20px rgba(0,0,0,0.2)';
             }, 長按閾值);
         }, { passive: true });
 
         document.addEventListener('touchend', (e) => {
             clearTimeout(長按計時器);
             if (是否長按) {
-                const 滑動距離 = e.changedTouches[0].screenX - e.changedTouches[0].clientX;
+                const 滑動距離 = e.changedTouches[0].clientX - 初始觸摸位置;
                 if (Math.abs(滑動距離) > 50) {
                     if (滑動距離 > 0) {
                         切換期間(-1);
@@ -632,6 +443,9 @@
             }
             是否長按 = false;
             document.body.classList.remove('可滑動');
+            // 移除浮起效果
+            document.querySelector('.主容器').style.transform = '';
+            document.querySelector('.主容器').style.boxShadow = '';
         }, { passive: true });
 
         document.addEventListener('touchmove', (e) => {
@@ -639,30 +453,17 @@
                 e.preventDefault();
             }
         }, { passive: false });
-        
-        function handleSwipe() {
-            const minSwipeDistance = 50;
-            const swipeDistance = touchEndX - touchStartX;
-            
-            if (Math.abs(swipeDistance) > minSwipeDistance) {
-                if (swipeDistance > 0) {
-                    切換期間(-1); // 向右滑動，顯示上一個月/週
-                } else {
-                    切換期間(1);  // 向左滑動，顯示下一個月/週
-                }
-            }
-        }
 
-        // 優化滾動效能
-        let isScrolling;
-        window.addEventListener('scroll', () => {
-            clearTimeout(isScrolling);
-            document.body.classList.add('is-scrolling');
-            
-            isScrolling = setTimeout(() => {
-                document.body.classList.remove('is-scrolling');
-            }, 100);
-        }, false);
+        // 添加縮放事件監聽器以防止誤觸
+        window.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+            是否長按 = false;
+            clearTimeout(長按計時器);
+            document.body.classList.remove('可滑動');
+            document.querySelector('.主容器').style.transform = '';
+            document.querySelector('.主容器').style.boxShadow = '';
+        });
+
         // 初始化年份選擇器
         function 初始化年份選擇器() {
             const 選擇器 = document.getElementById('年份選擇器');
@@ -987,22 +788,21 @@
 
             const 對話框 = document.createElement('div');
             對話框.className = '任務對話框';
-
+            
             const 是移動設備 = window.innerWidth <= 768;
 
             if (是移動設備) {
                 對話框.style.position = 'fixed';
-                對話框.style.top = '0';
-                對話框.style.left = '0';
-                對話框.style.right = '0';
-                對話框.style.bottom = '0';
-                對話框.style.width = '100%';
-                對話框.style.height = '100%';
+                對話框.style.top = '50%';
+                對話框.style.left = '50%';
+                對話框.style.transform = 'translate(-50%, -50%)';
+                對話框.style.width = '90%';
+                對話框.style.height = '90%';
                 對話框.style.maxWidth = 'none';
-                對話框.style.transform = 'none';
-                對話框.style.borderRadius = '0';
+                對話框.style.borderRadius = '10px';
+                對話框.style.overflowY = 'auto';
             }
-                        
+
             const 年 = 日期.getFullYear();
             const 月 = 日期.getMonth();
             const 日 = 日期.getDate();
@@ -1031,35 +831,18 @@
             
             document.body.appendChild(對話框);
 
-            // 對話框位置更新函數
-            let 更新對話框位置請求ID = null;
-            let 上次滾動時間 = 0;
-
+            // 確保對話框始終在視窗中央
             function 更新對話框位置() {
-                const 當前時間 = Date.now();
-                if (當前時間 - 上次滾動時間 < 16) {
-                    更新對話框位置請求ID = requestAnimationFrame(更新對話框位置);
-                    return;
+                if (是移動設備) {
+                    對話框.style.top = '50%';
+                    對話框.style.left = '50%';
+                    對話框.style.transform = 'translate(-50%, -50%)';
                 }
-                上次滾動時間 = 當前時間;
-
-                const 視窗高度 = window.innerHeight;
-                const 視窗寬度 = window.innerWidth;
-                const 對話框高度 = 對話框.offsetHeight;
-                const 對話框寬度 = 對話框.offsetWidth;
-
-                const 頂部位置 = Math.max(20, Math.min(
-                    視窗高度 - 對話框高度 - 20,
-                    (視窗高度 - 對話框高度) / 2
-                ));
-
-                const 左側位置 = Math.max(20, Math.min(
-                    視窗寬度 - 對話框寬度 - 20,
-                    (視窗寬度 - 對話框寬度) / 2
-                ));
-
-                對話框.style.transform = `translate(${左側位置}px, ${頂部位置}px) scale(1)`;
             }
+
+            // 監聽滾動和調整視窗大小事件
+            window.addEventListener('scroll', 更新對話框位置);
+            window.addEventListener('resize', 更新對話框位置);
 
             // 初始化位置並顯示動畫
             requestAnimationFrame(() => {
@@ -1070,49 +853,11 @@
                 遮罩.classList.add('顯示');
             });
 
-            // 監聽滾動和調整視窗大小事件
-            function 滾動處理() {
-                if (更新對話框位置請求ID) {
-                    cancelAnimationFrame(更新對話框位置請求ID);
-                }
-                更新對話框位置請求ID = requestAnimationFrame(更新對話框位置);
-            }
-
-            window.addEventListener('scroll', 滾動處理, { passive: true });
-            window.addEventListener('resize', 滾動處理);
-
             // 點擊遮罩關閉對話框
             遮罩.addEventListener('click', (事件) => {
                 if (事件.target === 遮罩) {
                     關閉任務對話框();
                 }
-            });
-
-            // 清理函數
-            function 清理監聽器() {
-                window.removeEventListener('scroll', 滾動處理);
-                window.removeEventListener('resize', 滾動處理);
-                if (更新對話框位置請求ID) {
-                    cancelAnimationFrame(更新對話框位置請求ID);
-                }
-            }
-
-            // 在關閉對話框時清理監聽器
-            const 原關閉按鈕 = 對話框.querySelector('button[type="button"]');
-            原關閉按鈕.addEventListener('click', 清理監聽器);
-
-            // 在表單提交時清理監聽器
-            const 表單 = 對話框.querySelector('form');
-            表單.addEventListener('submit', 清理監聽器);
-
-            // 時間輸入處理
-            const 時間輸入 = 對話框.querySelector('input[type="time"]');
-            時間輸入.addEventListener('input', function() {
-                const 時間值 = this.value.split(':');
-                const 小時 = parseInt(時間值[0]);
-                const 分鐘 = 時間值[1];
-                const 格式化小時 = 小時 % 24;
-                this.value = `${格式化小時.toString().padStart(2, '0')}:${分鐘}`;
             });
         }
 
@@ -1213,7 +958,7 @@
             if (任務) {
                 const [年, 月, 日] = 任務.日期.split('-').map(Number);
                 const 任務日期 = new Date(年, 月 - 1, 日);
-                顯示任務對話框(任務日期, 任務);
+                顯示任務對話框(任務日期, 任務, 事件);
             }
         }
 
@@ -1266,31 +1011,90 @@
             return 節日 ? `<div class="節日標示">${節日}</div>` : '';
         }
 
-        // 計算農曆春節的公曆日期
         function calculateLunarNewYear(year) {
-            const 基準年 = 1901;
-            const 基準春節 = new Date(1901, 1 - 1, 19);
-            const 春節數據 = [
-                0x04AE53,0x0A5748,0x5526BD,0x0D2650,0x0D9544,0x46AAB9,0x056A4D,0x09AD42,0x24AEB6,0x04AE4A, /*1901-1910*/
-                0x6A4DBE,0x0A4D52,0x0D2546,0x5D52BA,0x0B544E,0x0D6A43,0x296D37,0x095B4B,0x749BC1,0x049754, /*1911-1920*/
-                0x0A4B48,0x5B25BC,0x06A550,0x06D445,0x4ADAB8,0x02B64D,0x095742,0x2497B7,0x04974A,0x664B3E, /*1921-1930*/
-                0x0D4A51,0x0EA546,0x56D4BA,0x05AD4E,0x02B644,0x393738,0x092E4B,0x7C96BF,0x0C9553,0x0D4A48, /*1931-1940*/
-                // ... 這裡省略了一些數據,實際使用時需要包含更多年份的數據
+            const lunarInfo = [
+                0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+                0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+                0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+                0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+                0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+                0x06ca0,0x0b550,0x15355,0x04da0,0x0a5d0,0x14573,0x052d0,0x0a9a8,0x0e950,0x06aa0,
+                0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+                0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b5a0,0x195a6,
+                0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+                0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,
+                0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5
             ];
 
-            let 春節 = new Date(基準春節);
-            let 偏移天數 = 0;
-            
-            for (let i = 基準年; i < year; i++) {
-                偏移天數 += 春節數據[i - 基準年] & 0x1F;
-                if ((春節數據[i - 基準年] & 0x60) === 0x60) {
-                    偏移天數++;
+            function leapMonth(y) {
+                return lunarInfo[y - 1900] & 0xf;
+            }
+
+            function leapDays(y) {
+                if (leapMonth(y)) {
+                    return (lunarInfo[y - 1900] & 0x10000) ? 30 : 29;
+                }
+                return 0;
+            }
+
+            function monthDays(y, m) {
+                if (m > 12 || m < 1) { return -1 }
+                return (lunarInfo[y - 1900] & (0x10000 >> m)) ? 30 : 29;
+            }
+
+            function solarDays(y, m) {
+                if (m === 1) {
+                    return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0) ? 29 : 28;
+                }
+                const mDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+                return mDays[m];
+            }
+
+            if (year < 1900 || year > 2100) { return null; }
+
+            let offset = 0;
+            for (let i = 1900; i < year; i++) {
+                offset += 11;
+                offset += leapDays(i);
+                for (let j = 1; j <= 12; j++) {
+                    offset += monthDays(i, j);
                 }
             }
 
-            春節.setDate(春節.getDate() + 偏移天數);
-            return 春節;
+            let leap = leapMonth(year);
+            let isAdd = false;
+
+            for (let i = 1; i < 13; i++) {
+                if (leap > 0 && i === leap + 1 && isAdd === false) {
+                    offset += leapDays(year);
+                    isAdd = true;
+                    i--;
+                } else {
+                    offset += monthDays(year, i);
+                }
+                if (offset >= 23) {
+                    break;
+                }
+            }
+
+            let solarM = 1;
+            let solarD = 1;
+
+            for (let i = 1; i <= offset; i++) {
+                if (solarD === solarDays(year, solarM)) {
+                    if (++solarM > 12) {
+                        solarM = 1;
+                        year++;
+                    }
+                    solarD = 1;
+                } else {
+                    solarD++;
+                }
+            }
+
+            return new Date(year, solarM - 1, solarD);
         }
+
         // 計算端午節的公曆日期
         function calculateDragonBoatFestival(year) {
             const 春節 = calculateLunarNewYear(year);
@@ -1305,19 +1109,6 @@
             const 中秋節 = new Date(春節);
             中秋節.setDate(春節.getDate() + 240); // 農曆8月15日
             return 中秋節;
-        }
-
-        // 公曆日期轉儒略日
-        function 日期轉儒略日(日期) {
-            return Math.floor((日期 - new Date(日期.getFullYear(), 0, 1)) / 86400000) + 1;
-        }
-
-        // 儒略日轉公曆日期
-        function 儒略日轉日期(儒略日) {
-            const 年 = new Date().getFullYear();
-            const 日期 = new Date(年, 0, 1);
-            日期.setDate(日期.getDate() + 儒略日 - 1);
-            return 日期;
         }
 
         function 儲存資料() {
