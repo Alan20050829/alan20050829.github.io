@@ -235,9 +235,9 @@
 
         .任務對話框 {
             position: fixed;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background: white;
             padding: 20px;
             border-radius: 12px;
@@ -245,17 +245,23 @@
             z-index: 1001;
             opacity: 0;
             transition: opacity 0.2s ease-out, transform 0.2s ease-out;
-            width: 90% !important;
-            height: 90% !important;
-            max-width: 600px !important;
-            max-height: 80vh !important;
-            overflow-y: auto !important;
-            -webkit-overflow-scrolling: touch;
+            width: 300px;  /* 默認寬度，適用於電腦版 */
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .任務對話框.顯示 {
             opacity: 1;
-            transform: translate(-50%, -50%) scale(1) !important;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        @media (max-width: 768px) {
+            .任務對話框 {
+                width: 80%;  /* 手機版寬度 */
+                height: auto;
+                max-height: 60vh;
+            }
         }
 
         .全局遮罩 {
@@ -405,8 +411,8 @@
     </div>
 
     <script>
-        // 資料管理系統
-        let 當前視圖模式 = '月';
+                // 資料管理系統
+                let 當前視圖模式 = '月';
         let 當前月份 = new Date().getMonth();
         let 當前年份 = new Date().getFullYear();
         let 當前週數 = Math.floor((new Date().getDate() - 1) / 7);
@@ -449,19 +455,14 @@
         }, { passive: true });
 
         document.addEventListener('touchmove', (e) => {
-            if (!是否長按) {
+            if (是否長按) {
                 e.preventDefault();
             }
         }, { passive: false });
 
-        // 添加縮放事件監聽器以防止誤觸
-        window.addEventListener('gesturestart', function(e) {
+        // 移除 gesturestart 事件監聽器，允許正常的縮放操作
+        window.removeEventListener('gesturestart', function(e) {
             e.preventDefault();
-            是否長按 = false;
-            clearTimeout(長按計時器);
-            document.body.classList.remove('可滑動');
-            document.querySelector('.主容器').style.transform = '';
-            document.querySelector('.主容器').style.boxShadow = '';
         });
 
         // 初始化年份選擇器
