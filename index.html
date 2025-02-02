@@ -610,12 +610,16 @@
             font-size: 16px;
         }
         input[type="time"] {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        padding: 12px;
-        border-radius: 8px;
-        font-size: 16px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+    
+        input[type="time"]:focus::-webkit-datetime-edit {
+            display: block;
         }
     </style>
     <meta name="google-site-verification" content="hVBY6anFNZFvpXMpPun1b5PMej5F56jTLVHhGlZVGn0" />
