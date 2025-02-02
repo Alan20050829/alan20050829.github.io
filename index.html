@@ -671,75 +671,77 @@
         document.addEventListener('DOMContentLoaded', function() {
             初始化應用();
         });
-        // 初始化年份選擇器
+        
+        // 修正年份選擇器的滾動行為
         function 初始化年份選擇器() {
             const 選擇器 = document.getElementById('年份選擇器');
+            // 先移除可能存在的舊事件監聽器
+            選擇器.replaceWith(選擇器.cloneNode(true));
+            const 新選擇器 = document.getElementById('年份選擇器');
+            
             const 當前年份 = new Date().getFullYear();
             const 起始年份 = 當前年份 - 20;
             const 結束年份 = 當前年份 + 20;
             
-            選擇器.innerHTML = '';
+            新選擇器.innerHTML = '';
             for (let 年 = 起始年份; 年 <= 結束年份; 年++) {
                 const 選項 = document.createElement('option');
                 選項.value = 年;
                 選項.textContent = `${年}`;
                 if (年 === 當前年份) 選項.selected = true;
-                選擇器.appendChild(選項);
+                新選擇器.appendChild(選項);
             }
 
-            let 滾輪計數器 = 0;
-            選擇器.addEventListener('wheel', (事件) => {
+            // 使用 deltaMode 來判斷滾動單位
+            新選擇器.addEventListener('wheel', function(事件) {
                 事件.preventDefault();
-                滾輪計數器++;
                 
-                // 每2次滾輪才觸發一次變化
-                if (滾輪計數器 % 2 === 0) {
-                    const 方向 = 事件.deltaY > 0 ? 1 : -1;
-                    const 新索引 = 選擇器.selectedIndex + 方向;
-                    
-                    if (新索引 >= 0 && 新索引 < 選擇器.options.length) {
-                        選擇器.selectedIndex = 新索引;
-                        選擇器.dispatchEvent(new Event('change'));
-                    }
+                // 根據滾動方向決定移動方向
+                const 方向 = Math.sign(事件.deltaY);
+                const 新索引 = this.selectedIndex + 方向;
+                
+                if (新索引 >= 0 && 新索引 < this.options.length) {
+                    this.selectedIndex = 新索引;
+                    更改年份(this.value);
                 }
             });
         }
 
+        // 修正月份選擇器的滾動行為
         function 初始化月份選擇器() {
-            const 月份選擇器 = document.getElementById('月份選擇器');
+            const 選擇器 = document.getElementById('月份選擇器');
+            // 先移除可能存在的舊事件監聽器
+            選擇器.replaceWith(選擇器.cloneNode(true));
+            const 新選擇器 = document.getElementById('月份選擇器');
             
-            月份選擇器.innerHTML = '';
+            新選擇器.innerHTML = '';
             for (let 月 = 1; 月 <= 12; 月++) {
                 const 選項 = document.createElement('option');
                 選項.value = 月 - 1;
                 選項.textContent = `${月}`;
                 if (月 - 1 === 當前月份) 選項.selected = true;
-                月份選擇器.appendChild(選項);
+                新選擇器.appendChild(選項);
             }
-            
-            let 滾輪計數器 = 0;
-            月份選擇器.addEventListener('wheel', (事件) => {
+
+            // 使用 deltaMode 來判斷滾動單位
+            新選擇器.addEventListener('wheel', function(事件) {
                 事件.preventDefault();
-                滾輪計數器++;
                 
-                // 每2次滾輪才觸發一次變化
-                if (滾輪計數器 % 2 === 0) {
-                    const 方向 = 事件.deltaY > 0 ? 1 : -1;
-                    let 新索引 = 月份選擇器.selectedIndex + 方向;
-                    
-                    // 實現循環邏輯
-                    if (新索引 < 0) {
-                        新索引 = 11; // 如果向上滾動超過第一個，跳到最後一個（12月）
-                    } else if (新索引 >= 月份選擇器.options.length) {
-                        新索引 = 0; // 如果向下滾動超過最後一個，跳到第一個（1月）
-                    }
-                    
-                    月份選擇器.selectedIndex = 新索引;
-                    月份選擇器.dispatchEvent(new Event('change'));
+                // 根據滾動方向決定移動方向
+                const 方向 = Math.sign(事件.deltaY);
+                let 新索引 = this.selectedIndex + 方向;
+                
+                // 循環邏輯
+                if (新索引 < 0) {
+                    新索引 = 11;
+                } else if (新索引 > 11) {
+                    新索引 = 0;
                 }
+                
+                this.selectedIndex = 新索引;
+                更改月份(this.value);
             });
         }
-
         function 更新視圖按鈕狀態() {
             document.getElementById('月視圖按鈕').classList.toggle('活動', 當前視圖模式 === '月');
             document.getElementById('週視圖按鈕').classList.toggle('活動', 當前視圖模式 === '週');
