@@ -392,11 +392,215 @@
             transform: scale(0.98);
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
+            /* 添加用戶系統相關的新樣式 */
+        .頂部欄 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: white;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+
+        .應用標題 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--主要色);
+        }
+
+        .用戶信息 {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .用戶名 {
+            font-weight: bold;
+            color: var(--主要色);
+        }
+
+        .登入容器 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .登入表單 {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .登入表單 h2 {
+            margin: 0 0 1.5rem;
+            text-align: center;
+            color: var(--主要色);
+        }
+
+        .表單組 {
+            margin-bottom: 1rem;
+        }
+
+        .表單組 label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--文字色);
+        }
+
+        .表單組 input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .登入按鈕 {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--主要色);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .切換按鈕 {
+            background: none;
+            border: none;
+            color: var(--主要色);
+            text-decoration: underline;
+            cursor: pointer;
+            display: block;
+            margin: 1rem auto 0;
+            width: 100%;
+        }
+
+        .消息提示 {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 2001;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .消息提示.顯示 {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .消息提示.success {
+            background: var(--成功色);
+            color: white;
+        }
+
+        .消息提示.error {
+            background: var(--警示色);
+            color: white;
+        }
+
+        .視圖按鈕.警告 {
+            background: var(--警示色);
+        }
+
+        @media (max-width: 768px) {
+            .頂部欄 {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.5rem;
+            }
+
+            .用戶信息 {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+        /* Google 登入按鈕樣式 */
+        .google登入按鈕 {
+            width: 100%;
+            padding: 0.75rem;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .google登入按鈕 img {
+            width: 24px;
+            height: 24px;
+            background: white;
+            padding: 4px;
+            border-radius: 50%;
+        }
+
+        .分隔線 {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #666;
+            margin: 1rem 0;
+        }
+
+        .分隔線::before,
+        .分隔線::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .分隔線::before {
+            margin-right: .5em;
+        }
+
+        .分隔線::after {
+            margin-left: .5em;
+        }
+
+        .用戶頭像 {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
     </style>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <meta name="google-site-verification" content="hVBY6anFNZFvpXMpPun1b5PMej5F56jTLVHhGlZVGn0" />
 </head>
 <body>
     <div class="主容器">
+        <div class="頂部欄">
+            <div class="應用標題">無敵小本本</div>
+            <div id="用戶信息容器"></div>
+        </div>
         <div class="控制列">
             <button class="視圖按鈕" id="月視圖按鈕" onclick="切換視圖('月')">📅 月視圖</button>
             <button class="視圖按鈕" id="週視圖按鈕" onclick="切換視圖('週')">📆 週視圖</button>
@@ -475,7 +679,55 @@
         window.removeEventListener('gesturestart', function(e) {
             e.preventDefault();
         });
+        // 修改檔案匯入功能
+        document.getElementById('匯入檔案').addEventListener('change', function(e) {
+            if (!userManager.isLoggedIn()) {
+                消息系統.顯示('請先登入', 'error');
+                return;
+            }
 
+            const 檔案 = e.target.files[0];
+            if (!檔案) return;
+
+            const 讀取器 = new FileReader();
+            讀取器.onload = () => {
+                try {
+                    const 匯入資料 = JSON.parse(讀取器.result);
+                    
+                    // 驗證資料格式
+                    if (!Array.isArray(匯入資料)) {
+                        throw new Error('無效的資料格式');
+                    }
+
+                    // 轉換舊格式的時間資料
+                    任務資料 = 匯入資料.map(任務 => {
+                        if (typeof 任務.時間 === 'number') {
+                            const 日期對象 = new Date(任務.時間);
+                            return {
+                                ...任務,
+                                日期: 日期對象.toISOString().split('T')[0],
+                                時間: undefined
+                            };
+                        }
+                        return 任務;
+                    });
+
+                    儲存資料();
+                    渲染日曆();
+                    消息系統.顯示('數據匯入成功', 'success');
+                } catch (error) {
+                    消息系統.顯示('檔案格式錯誤', 'error');
+                }
+            };
+            讀取器.readAsText(檔案);
+        });
+
+        // 在網頁載入時初始化應用
+        document.addEventListener('DOMContentLoaded', function() {
+            // 使用 GoogleAuthManager 替代 UserManager
+            window.userManager = new GoogleAuthManager();
+            初始化應用();
+        });
         // 初始化年份選擇器
         function 初始化年份選擇器() {
             const 選擇器 = document.getElementById('年份選擇器');
@@ -962,10 +1214,92 @@
             渲染日曆();
         }
 
+        class LunarDateCalculator {
+            constructor() {
+                // 已知的農曆節日日期對照表
+                this.festivals = {
+                    2024: {
+                        春節: { month: 2, day: 10 },
+                        端午: { month: 6, day: 10 },
+                        中秋: { month: 9, day: 17 }
+                    },
+                    2025: {
+                        春節: { month: 1, day: 29 },
+                        端午: { month: 5, day: 31 },
+                        中秋: { month: 10, day: 6 }, // 修正2025年中秋節日期
+                    },
+                    2026: {
+                        春節: { month: 2, day: 17 },
+                        端午: { month: 6, day: 19 },
+                        中秋: { month: 9, day: 25 }
+                    }
+                };
+            }
+
+            // 比較兩個日期是否相同（忽略時分秒）
+            isSameDate(date1, date2) {
+                return date1.getFullYear() === date2.getFullYear() &&
+                    date1.getMonth() === date2.getMonth() &&
+                    date1.getDate() === date2.getDate();
+            }
+
+            // 取得特定年份的農曆節日日期
+            getFestivalDate(year, festival) {
+                if (this.festivals[year] && this.festivals[year][festival]) {
+                    const data = this.festivals[year][festival];
+                    return new Date(year, data.month - 1, data.day);
+                }
+
+                // 如果沒有該年份的數據，使用最接近的年份
+                const availableYears = Object.keys(this.festivals).map(Number);
+                const closestYear = availableYears.reduce((prev, curr) => {
+                    return Math.abs(curr - year) < Math.abs(prev - year) ? curr : prev;
+                });
+
+                const festivalData = this.festivals[closestYear][festival];
+                if (!festivalData) return null;
+
+                // 調整為目標年份
+                return new Date(year, festivalData.month - 1, festivalData.day);
+            }
+
+            // 計算春節日期
+            calculateLunarNewYear(year) {
+                return this.getFestivalDate(year, '春節');
+            }
+
+            // 計算端午節日期
+            calculateDragonBoatFestival(year) {
+                return this.getFestivalDate(year, '端午');
+            }
+
+            // 計算中秋節日期
+            calculateMidAutumnFestival(year) {
+                return this.getFestivalDate(year, '中秋');
+            }
+
+            // 判斷是否為農曆節日
+            isLunarFestival(date) {
+                const year = date.getFullYear();
+
+                // 檢查所有節日
+                for (const festival of ['春節', '端午', '中秋']) {
+                    const festivalDate = this.getFestivalDate(year, festival);
+                    if (festivalDate && this.isSameDate(date, festivalDate)) {
+                        return festival;
+                    }
+                }
+
+                return null;
+            }
+        }
+
+        // 更新取得節日標示函數
         function 取得節日標示(日期) {
             const 月 = 日期.getMonth() + 1;
             const 日 = 日期.getDate();
             
+            // 陽曆節日表
             const 節日表 = {
                 "1-1": "元旦",
                 "2-28": "和平紀念日",
@@ -978,132 +1312,55 @@
                 "12-25": "行憲紀念日"
             };
 
-            // 計算農曆春節、端午節、中秋節日期
-            const 年 = 日期.getFullYear();
-            const 春節 = calculateLunarNewYear(年);
-            const 端午節 = calculateDragonBoatFestival(年); 
-            const 中秋節 = calculateMidAutumnFestival(年);
-
-            // 將農曆節日加入節日表
-            節日表[`${春節.getMonth() + 1}-${春節.getDate()}`] = "春節";
-            節日表[`${端午節.getMonth() + 1}-${端午節.getDate()}`] = "端午節";
-            節日表[`${中秋節.getMonth() + 1}-${中秋節.getDate()}`] = "中秋節";
-
-            const 節日 = 節日表[`${月}-${日}`];
-            return 節日 ? `<div class="節日標示">${節日}</div>` : '';
+            const 農曆計算器 = new LunarDateCalculator();
+            const 農曆節日 = 農曆計算器.isLunarFestival(日期);
+            
+            // 檢查陽曆節日
+            const 陽曆節日 = 節日表[`${月}-${日}`];
+            
+            if (農曆節日 && 陽曆節日) {
+                return `<div class="節日標示">${陽曆節日}, ${農曆節日}</div>`;
+            } else if (農曆節日) {
+                return `<div class="節日標示">${農曆節日}</div>`;
+            } else if (陽曆節日) {
+                return `<div class="節日標示">${陽曆節日}</div>`;
+            }
+            
+            return '';
         }
+        // 更新取得節日標示函數
+        function 取得節日標示(日期) {
+            const 月 = 日期.getMonth() + 1;
+            const 日 = 日期.getDate();
+            
+            // 陽曆節日表
+            const 節日表 = {
+                "1-1": "元旦",
+                "2-28": "和平紀念日",
+                "4-4": "兒童節",
+                "4-5": "清明節",
+                "5-1": "勞動節",
+                "8-8": "父親節",
+                "10-10": "國慶日",
+                "10-25": "台灣光復節",
+                "12-25": "行憲紀念日"
+            };
 
-        function calculateLunarNewYear(year) {
-            const lunarInfo = [
-                0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
-                0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
-                0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
-                0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
-                0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
-                0x06ca0,0x0b550,0x15355,0x04da0,0x0a5d0,0x14573,0x052d0,0x0a9a8,0x0e950,0x06aa0,
-                0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
-                0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b5a0,0x195a6,
-                0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
-                0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,
-                0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5
-            ];
-
-            function leapMonth(y) {
-                return lunarInfo[y - 1900] & 0xf;
+            const 農曆計算器 = new LunarDateCalculator();
+            const 農曆節日 = 農曆計算器.isLunarFestival(日期);
+            
+            // 檢查陽曆節日
+            const 陽曆節日 = 節日表[`${月}-${日}`];
+            
+            if (農曆節日 && 陽曆節日) {
+                return `<div class="節日標示">${陽曆節日}, ${農曆節日}</div>`;
+            } else if (農曆節日) {
+                return `<div class="節日標示">${農曆節日}</div>`;
+            } else if (陽曆節日) {
+                return `<div class="節日標示">${陽曆節日}</div>`;
             }
-
-            function leapDays(y) {
-                if (leapMonth(y)) {
-                    return (lunarInfo[y - 1900] & 0x10000) ? 30 : 29;
-                }
-                return 0;
-            }
-
-            function monthDays(y, m) {
-                if (m > 12 || m < 1) { return -1 }
-                return (lunarInfo[y - 1900] & (0x10000 >> m)) ? 30 : 29;
-            }
-
-            function solarDays(y, m) {
-                if (m === 1) {
-                    return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0) ? 29 : 28;
-                }
-                const mDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-                return mDays[m];
-            }
-
-            if (year < 1900 || year > 2100) { return null; }
-
-            let offset = 0;
-            for (let i = 1900; i < year; i++) {
-                offset += 11;
-                offset += leapDays(i);
-                for (let j = 1; j <= 12; j++) {
-                    offset += monthDays(i, j);
-                }
-            }
-
-            let leap = leapMonth(year);
-            let isAdd = false;
-
-            for (let i = 1; i < 13; i++) {
-                if (leap > 0 && i === leap + 1 && isAdd === false) {
-                    offset += leapDays(year);
-                    isAdd = true;
-                    i--;
-                } else {
-                    offset += monthDays(year, i);
-                }
-                if (offset >= 23) {
-                    break;
-                }
-            }
-
-            let solarM = 1;
-            let solarD = 1;
-
-            for (let i = 1; i <= offset; i++) {
-                if (solarD === solarDays(year, solarM)) {
-                    if (++solarM > 12) {
-                        solarM = 1;
-                        year++;
-                    }
-                    solarD = 1;
-                } else {
-                    solarD++;
-                }
-            }
-
-            return new Date(year, solarM - 1, solarD);
-        }
-
-        // 計算端午節的公曆日期
-        function calculateDragonBoatFestival(year) {
-            const 春節 = calculateLunarNewYear(year);
-            const 端午節 = new Date(春節);
-            端午節.setDate(春節.getDate() + 60); // 農曆5月5日
-            return 端午節;
-        }
-
-        // 計算中秋節的公曆日期  
-        function calculateMidAutumnFestival(year) {
-            const 春節 = calculateLunarNewYear(year);
-            const 中秋節 = new Date(春節);
-            中秋節.setDate(春節.getDate() + 240); // 農曆8月15日
-            return 中秋節;
-        }
-
-        function 儲存資料() {
-            localStorage.setItem('plan-data', JSON.stringify(任務資料));
-        }
-
-        function 匯出資料() {
-            const 資料字串 = JSON.stringify(任務資料);
-            const 檔案 = new Blob([資料字串], { type: 'application/json' });
-            const 下載連結 = document.createElement('a');
-            下載連結.href = URL.createObjectURL(檔案);
-            下載連結.download = `計劃備份_${new Date().toISOString().slice(0,10)}.json`;
-            下載連結.click();
+            
+            return '';
         }
 
         function 取得優先級顏色(優先級) {
@@ -1113,7 +1370,515 @@
                 '低': '#27AE60'   // 綠色
             }[優先級] || '#E67E22';
         }
+        // 用戶管理系統
+        class UserManager {
+            constructor() {
+                this.currentUser = null;
+                this.initializeFromLocalStorage();
+            }
 
+            // 初始化用戶系統
+            initializeFromLocalStorage() {
+                const savedUser = localStorage.getItem('current-user');
+                if (savedUser) {
+                    this.currentUser = JSON.parse(savedUser);
+                }
+            }
+
+            // 註冊新用戶
+            register(username, password) {
+                return new Promise((resolve, reject) => {
+                    const users = this.getAllUsers();
+                    if (users.some(user => user.username === username)) {
+                        reject(new Error('用戶名已存在'));
+                        return;
+                    }
+
+                    const newUser = {
+                        id: Date.now().toString(),
+                        username,
+                        password: this.hashPassword(password),
+                        createdAt: new Date().toISOString()
+                    };
+
+                    users.push(newUser);
+                    localStorage.setItem('users', JSON.stringify(users));
+                    resolve(newUser);
+                });
+            }
+
+            // 用戶登入
+            login(username, password) {
+                return new Promise((resolve, reject) => {
+                    const users = this.getAllUsers();
+                    const user = users.find(u => u.username === username);
+                    
+                    if (!user || user.password !== this.hashPassword(password)) {
+                        reject(new Error('用戶名或密碼錯誤'));
+                        return;
+                    }
+
+                    this.currentUser = user;
+                    localStorage.setItem('current-user', JSON.stringify(user));
+                    resolve(user);
+                });
+            }
+
+            // 用戶登出
+            logout() {
+                this.currentUser = null;
+                localStorage.removeItem('current-user');
+            }
+
+            // 修改密碼
+            changePassword(oldPassword, newPassword) {
+                return new Promise((resolve, reject) => {
+                    if (!this.currentUser) {
+                        reject(new Error('請先登入'));
+                        return;
+                    }
+
+                    const hashedOldPassword = this.hashPassword(oldPassword);
+                    if (this.currentUser.password !== hashedOldPassword) {
+                        reject(new Error('原密碼不正確'));
+                        return;
+                    }
+
+                    const users = this.getAllUsers();
+                    const userIndex = users.findIndex(u => u.id === this.currentUser.id);
+                    
+                    if (userIndex === -1) {
+                        reject(new Error('用戶不存在'));
+                        return;
+                    }
+
+                    users[userIndex].password = this.hashPassword(newPassword);
+                    users[userIndex].updatedAt = new Date().toISOString();
+                    
+                    localStorage.setItem('users', JSON.stringify(users));
+                    this.currentUser = users[userIndex];
+                    localStorage.setItem('current-user', JSON.stringify(this.currentUser));
+                    
+                    resolve(true);
+                });
+            }
+
+            // 獲取所有用戶
+            getAllUsers() {
+                const users = localStorage.getItem('users');
+                return users ? JSON.parse(users) : [];
+            }
+
+            // 檢查是否已登入
+            isLoggedIn() {
+                return this.currentUser !== null;
+            }
+
+            // 獲取當前用戶
+            getCurrentUser() {
+                return this.currentUser;
+            }
+
+            // 獲取用戶的任務數據
+            getUserTasks() {
+                if (!this.isLoggedIn()) {
+                    return [];
+                }
+                const key = `tasks-${this.currentUser.id}`;
+                const tasks = localStorage.getItem(key);
+                return tasks ? JSON.parse(tasks) : [];
+            }
+
+            // 保存用戶的任務數據
+            saveUserTasks(tasks) {
+                if (!this.isLoggedIn()) {
+                    return;
+                }
+                const key = `tasks-${this.currentUser.id}`;
+                localStorage.setItem(key, JSON.stringify(tasks));
+            }
+
+            // 簡單的密碼雜湊函數
+            hashPassword(password) {
+                let hash = 0;
+                for (let i = 0; i < password.length; i++) {
+                    const char = password.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return hash.toString(36);
+            }
+        }
+
+        // 消息提示系統
+        const 消息系統 = {
+            顯示: function(消息, 類型 = 'success') {
+                const 提示元素 = document.createElement('div');
+                提示元素.className = `消息提示 ${類型}`;
+                提示元素.textContent = 消息;
+                document.body.appendChild(提示元素);
+                
+                setTimeout(() => 提示元素.classList.add('顯示'), 100);
+                setTimeout(() => {
+                    提示元素.classList.remove('顯示');
+                    setTimeout(() => 提示元素.remove(), 300);
+                }, 3000);
+            }
+        };
+        // 創建登入表單
+        function 創建登入表單() {
+            const 容器 = document.createElement('div');
+            容器.className = '登入容器';
+            容器.innerHTML = `
+                <div class="登入表單">
+                    <h2>登入</h2>
+                    
+                    <!-- Google 登入按鈕容器 -->
+                    <div id="google-login-button"></div>
+
+                    <div class="分隔線">或</div>
+
+                    <!-- 一般登入表單 -->
+                    <form onsubmit="handleLogin(event)">
+                        <div class="表單組">
+                            <label for="username">用戶名</label>
+                            <input type="text" id="username" name="username" required>
+                        </div>
+                        <div class="表單組">
+                            <label for="password">密碼</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="登入按鈕">登入</button>
+                        <button type="button" class="切換按鈕" onclick="切換到註冊表單()">還沒有帳號？立即註冊</button>
+                    </form>
+                </div>
+            `;
+
+            // 渲染 Google 登入按鈕
+            setTimeout(() => {
+                userManager.renderGoogleButton();
+            }, 100);
+
+            return 容器;
+        }
+        // 創建註冊表單
+        function 創建註冊表單() {
+            const 容器 = document.createElement('div');
+            容器.className = '登入容器';
+            容器.innerHTML = `
+                <form class="登入表單" onsubmit="handleRegister(event)">
+                    <h2>用戶註冊</h2>
+                    <div class="表單組">
+                        <label for="username">用戶名</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="表單組">
+                        <label for="password">密碼</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="表單組">
+                        <label for="confirmPassword">確認密碼</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="登入按鈕">註冊</button>
+                    <button type="button" class="切換按鈕" onclick="切換到登入表單()">已有帳號？立即登入</button>
+                </form>
+            `;
+            return 容器;
+        }
+
+        // 創建修改密碼表單
+        function 創建修改密碼表單() {
+            const 容器 = document.createElement('div');
+            容器.className = '任務對話框';
+            容器.innerHTML = `
+                <form class="任務表單" onsubmit="handleChangePassword(event)">
+                    <h3>修改密碼</h3>
+                    <div class="表單組">
+                        <input type="password" name="oldPassword" placeholder="原密碼" required>
+                    </div>
+                    <div class="表單組">
+                        <input type="password" name="newPassword" placeholder="新密碼" required>
+                    </div>
+                    <div class="表單組">
+                        <input type="password" name="confirmPassword" placeholder="確認新密碼" required>
+                    </div>
+                    <div class="按鈕組">
+                        <button type="button" onclick="關閉對話框(this)">取消</button>
+                        <button type="submit">確認</button>
+                    </div>
+                </form>
+            `;
+            return 容器;
+        }
+
+        // 更新用戶界面
+        function 更新用戶界面() {
+            const 用戶信息容器 = document.getElementById('用戶信息容器');
+            if (!userManager.isLoggedIn()) {
+                用戶信息容器.innerHTML = `
+                    <button class="視圖按鈕" onclick="顯示登入表單()">登入</button>
+                `;
+                return;
+            }
+
+            const 當前用戶 = userManager.getCurrentUser();
+            用戶信息容器.innerHTML = `
+                <div class="用戶信息">
+                    <span class="用戶名">${當前用戶.username}</span>
+                    <button class="視圖按鈕" onclick="顯示修改密碼表單()">修改密碼</button>
+                    <button class="視圖按鈕 警告" onclick="handleLogout()">登出</button>
+                </div>
+            `;
+        }
+
+        // 顯示登入表單
+        function 顯示登入表單() {
+            const 登入表單 = 創建登入表單();
+            document.body.appendChild(登入表單);
+        }
+
+        // 顯示修改密碼表單
+        function 顯示修改密碼表單() {
+            const 修改密碼表單 = 創建修改密碼表單();
+            document.body.appendChild(修改密碼表單);
+            setTimeout(() => 修改密碼表單.classList.add('顯示'), 100);
+        }
+
+        // 切換到註冊表單
+        function 切換到註冊表單() {
+            const 登入容器 = document.querySelector('.登入容器');
+            登入容器.replaceWith(創建註冊表單());
+        }
+
+        // 切換到登入表單（續）
+        function 切換到登入表單() {
+            const 註冊容器 = document.querySelector('.登入容器');
+            註冊容器.replaceWith(創建登入表單());
+        }
+
+        // 關閉對話框
+        function 關閉對話框(按鈕) {
+            const 對話框 = 按鈕.closest('.任務對話框');
+            對話框.classList.remove('顯示');
+            setTimeout(() => 對話框.remove(), 300);
+        }
+
+        // 處理登入
+        async function handleLogin(event) {
+            event.preventDefault();
+            const form = event.target;
+            const username = form.username.value;
+            const password = form.password.value;
+
+            try {
+                await userManager.login(username, password);
+                消息系統.顯示(`歡迎回來，${username}！`, 'success');
+                
+                const 登入容器 = document.querySelector('.登入容器');
+                登入容器.remove();
+                
+                初始化應用();
+            } catch (error) {
+                消息系統.顯示(error.message, 'error');
+            }
+        }
+
+        // 處理註冊
+        async function handleRegister(event) {
+            event.preventDefault();
+            const form = event.target;
+            const username = form.username.value;
+            const password = form.password.value;
+            const confirmPassword = form.confirmPassword.value;
+
+            if (password !== confirmPassword) {
+                消息系統.顯示('兩次輸入的密碼不一致', 'error');
+                return;
+            }
+
+            try {
+                await userManager.register(username, password);
+                消息系統.顯示('註冊成功，請登入', 'success');
+                切換到登入表單();
+            } catch (error) {
+                消息系統.顯示(error.message, 'error');
+            }
+        }
+
+        // 處理修改密碼
+        async function handleChangePassword(event) {
+            event.preventDefault();
+            const form = event.target;
+            const oldPassword = form.oldPassword.value;
+            const newPassword = form.newPassword.value;
+            const confirmPassword = form.confirmPassword.value;
+
+            if (newPassword !== confirmPassword) {
+                消息系統.顯示('兩次輸入的新密碼不一致', 'error');
+                return;
+            }
+
+            try {
+                await userManager.changePassword(oldPassword, newPassword);
+                消息系統.顯示('密碼修改成功', 'success');
+                關閉對話框(form.querySelector('button'));
+            } catch (error) {
+                消息系統.顯示(error.message, 'error');
+            }
+        }
+
+        // 處理登出
+        function handleLogout() {
+            if (confirm('確定要登出嗎？')) {
+                const username = userManager.getCurrentUser().username;
+                userManager.logout();
+                消息系統.顯示(`再見，${username}！`, 'success');
+                location.reload();
+            }
+        }
+
+        class GoogleAuthManager extends UserManager {
+            constructor() {
+                super();
+                this.googleClientId = '1052886350870-5d86usco4vj8lejt3032n8c443lpbn35.apps.googleusercontent.com'; // 需要替換為你的 Google Client ID
+                this.initGoogleAuth();
+            }
+
+            // 初始化 Google 認證
+            initGoogleAuth() {
+                google.accounts.id.initialize({
+                    client_id: this.googleClientId,
+                    callback: this.handleGoogleCredential.bind(this)
+                });
+            }
+
+            // 顯示 Google 登入按鈕
+            renderGoogleButton() {
+                google.accounts.id.renderButton(
+                    document.getElementById('google-login-button'),
+                    { theme: 'outline', size: 'large', width: '100%' }
+                );
+            }
+
+            // 處理 Google 登入回調
+            async handleGoogleCredential(response) {
+                try {
+                    // 解碼 JWT token
+                    const payload = this.decodeJwtToken(response.credential);
+                    
+                    // 創建或獲取用戶
+                    const user = {
+                        id: payload.sub,
+                        username: payload.name,
+                        email: payload.email,
+                        picture: payload.picture,
+                        provider: 'google'
+                    };
+
+                    // 保存用戶信息
+                    const users = this.getAllUsers();
+                    const existingUserIndex = users.findIndex(u => u.id === user.id);
+                    
+                    if (existingUserIndex === -1) {
+                        users.push(user);
+                    } else {
+                        users[existingUserIndex] = user;
+                    }
+                    
+                    localStorage.setItem('users', JSON.stringify(users));
+                    
+                    // 設置當前用戶
+                    this.currentUser = user;
+                    localStorage.setItem('current-user', JSON.stringify(user));
+
+                    // 更新界面
+                    消息系統.顯示(`歡迎，${user.username}！`);
+                    初始化應用();
+
+                } catch (error) {
+                    console.error('Google 登入失敗:', error);
+                    消息系統.顯示('登入失敗，請稍後再試', 'error');
+                }
+            }
+
+            // 解碼 JWT token
+            decodeJwtToken(token) {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            }
+
+            // 更新用戶界面以顯示 Google 用戶信息
+            updateUserInterface() {
+                const 用戶信息容器 = document.getElementById('用戶信息容器');
+                
+                if (!this.isLoggedIn()) {
+                    用戶信息容器.innerHTML = `
+                        <button class="視圖按鈕" onclick="顯示登入表單()">登入</button>
+                    `;
+                    return;
+                }
+
+                const user = this.getCurrentUser();
+                用戶信息容器.innerHTML = `
+                    <div class="用戶信息">
+                        ${user.picture ? `<img src="${user.picture}" class="用戶頭像" alt="頭像">` : ''}
+                        <span class="用戶名">${user.username}</span>
+                        <button class="視圖按鈕" onclick="handleLogout()">登出</button>
+                    </div>
+                `;
+            }
+        }
+
+        // 初始化應用
+        function 初始化應用() {
+            // 創建用戶管理器實例
+            window.userManager = window.userManager || new UserManager();
+            
+            // 更新用戶界面
+            更新用戶界面();
+            
+            if (!userManager.isLoggedIn()) {
+                顯示登入表單();
+                return;
+            }
+
+            // 載入用戶數據
+            任務資料 = userManager.getUserTasks();
+
+            // 初始化其他組件
+            初始化年份選擇器();
+            初始化月份選擇器();
+            更新視圖按鈕狀態();
+            渲染日曆();
+        }
+
+        // 修改現有的儲存資料函數
+        function 儲存資料() {
+            if (userManager.isLoggedIn()) {
+                userManager.saveUserTasks(任務資料);
+            }
+        }
+
+        // 修改匯出資料功能
+        function 匯出資料() {
+            if (!userManager.isLoggedIn()) {
+                消息系統.顯示('請先登入', 'error');
+                return;
+            }
+
+            const 用戶 = userManager.getCurrentUser();
+            const 資料字串 = JSON.stringify(任務資料);
+            const 檔案 = new Blob([資料字串], { type: 'application/json' });
+            const 下載連結 = document.createElement('a');
+            下載連結.href = URL.createObjectURL(檔案);
+            下載連結.download = `計劃備份_${用戶.username}_${new Date().toISOString().slice(0,10)}.json`;
+            下載連結.click();
+        }
         // 初始化設定
         document.getElementById('匯入檔案').addEventListener('change', function(e) {
             const 檔案 = e.target.files[0];
