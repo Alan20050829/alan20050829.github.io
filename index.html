@@ -537,62 +537,7 @@
                 flex-wrap: wrap;
             }
         }
-        /* Google 登入按鈕樣式 */
-        .google登入按鈕 {
-            width: 100%;
-            padding: 0.75rem;
-            background: #4285f4;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .google登入按鈕 img {
-            width: 24px;
-            height: 24px;
-            background: white;
-            padding: 4px;
-            border-radius: 50%;
-        }
-
-        .分隔線 {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            color: #666;
-            margin: 1rem 0;
-        }
-
-        .分隔線::before,
-        .分隔線::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .分隔線::before {
-            margin-right: .5em;
-        }
-
-        .分隔線::after {
-            margin-left: .5em;
-        }
-
-        .用戶頭像 {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-right: 0.5rem;
-        }
     </style>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <meta name="google-site-verification" content="hVBY6anFNZFvpXMpPun1b5PMej5F56jTLVHhGlZVGn0" />
 </head>
 <body>
@@ -724,8 +669,6 @@
 
         // 在網頁載入時初始化應用
         document.addEventListener('DOMContentLoaded', function() {
-            // 使用 GoogleAuthManager 替代 UserManager
-            window.userManager = new GoogleAuthManager();
             初始化應用();
         });
         // 初始化年份選擇器
@@ -1530,37 +1473,23 @@
             const 容器 = document.createElement('div');
             容器.className = '登入容器';
             容器.innerHTML = `
-                <div class="登入表單">
-                    <h2>登入</h2>
-                    
-                    <!-- Google 登入按鈕容器 -->
-                    <div id="google-login-button"></div>
-
-                    <div class="分隔線">或</div>
-
-                    <!-- 一般登入表單 -->
-                    <form onsubmit="handleLogin(event)">
-                        <div class="表單組">
-                            <label for="username">用戶名</label>
-                            <input type="text" id="username" name="username" required>
-                        </div>
-                        <div class="表單組">
-                            <label for="password">密碼</label>
-                            <input type="password" id="password" name="password" required>
-                        </div>
-                        <button type="submit" class="登入按鈕">登入</button>
-                        <button type="button" class="切換按鈕" onclick="切換到註冊表單()">還沒有帳號？立即註冊</button>
-                    </form>
-                </div>
+                <form class="登入表單" onsubmit="handleLogin(event)">
+                    <h2>用戶登入</h2>
+                    <div class="表單組">
+                        <label for="username">用戶名</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="表單組">
+                        <label for="password">密碼</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="登入按鈕">登入</button>
+                    <button type="button" class="切換按鈕" onclick="切換到註冊表單()">還沒有帳號？立即註冊</button>
+                </form>
             `;
-
-            // 渲染 Google 登入按鈕
-            setTimeout(() => {
-                userManager.renderGoogleButton();
-            }, 100);
-
             return 容器;
         }
+
         // 創建註冊表單
         function 創建註冊表單() {
             const 容器 = document.createElement('div');
@@ -1735,102 +1664,6 @@
                 userManager.logout();
                 消息系統.顯示(`再見，${username}！`, 'success');
                 location.reload();
-            }
-        }
-
-        class GoogleAuthManager extends UserManager {
-            constructor() {
-                super();
-                this.googleClientId = '1052886350870-5d86usco4vj8lejt3032n8c443lpbn35.apps.googleusercontent.com'; // 需要替換為你的 Google Client ID
-                this.initGoogleAuth();
-            }
-
-            // 初始化 Google 認證
-            initGoogleAuth() {
-                google.accounts.id.initialize({
-                    client_id: this.googleClientId,
-                    callback: this.handleGoogleCredential.bind(this)
-                });
-            }
-
-            // 顯示 Google 登入按鈕
-            renderGoogleButton() {
-                google.accounts.id.renderButton(
-                    document.getElementById('google-login-button'),
-                    { theme: 'outline', size: 'large', width: '100%' }
-                );
-            }
-
-            // 處理 Google 登入回調
-            async handleGoogleCredential(response) {
-                try {
-                    // 解碼 JWT token
-                    const payload = this.decodeJwtToken(response.credential);
-                    
-                    // 創建或獲取用戶
-                    const user = {
-                        id: payload.sub,
-                        username: payload.name,
-                        email: payload.email,
-                        picture: payload.picture,
-                        provider: 'google'
-                    };
-
-                    // 保存用戶信息
-                    const users = this.getAllUsers();
-                    const existingUserIndex = users.findIndex(u => u.id === user.id);
-                    
-                    if (existingUserIndex === -1) {
-                        users.push(user);
-                    } else {
-                        users[existingUserIndex] = user;
-                    }
-                    
-                    localStorage.setItem('users', JSON.stringify(users));
-                    
-                    // 設置當前用戶
-                    this.currentUser = user;
-                    localStorage.setItem('current-user', JSON.stringify(user));
-
-                    // 更新界面
-                    消息系統.顯示(`歡迎，${user.username}！`);
-                    初始化應用();
-
-                } catch (error) {
-                    console.error('Google 登入失敗:', error);
-                    消息系統.顯示('登入失敗，請稍後再試', 'error');
-                }
-            }
-
-            // 解碼 JWT token
-            decodeJwtToken(token) {
-                const base64Url = token.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-                return JSON.parse(jsonPayload);
-            }
-
-            // 更新用戶界面以顯示 Google 用戶信息
-            updateUserInterface() {
-                const 用戶信息容器 = document.getElementById('用戶信息容器');
-                
-                if (!this.isLoggedIn()) {
-                    用戶信息容器.innerHTML = `
-                        <button class="視圖按鈕" onclick="顯示登入表單()">登入</button>
-                    `;
-                    return;
-                }
-
-                const user = this.getCurrentUser();
-                用戶信息容器.innerHTML = `
-                    <div class="用戶信息">
-                        ${user.picture ? `<img src="${user.picture}" class="用戶頭像" alt="頭像">` : ''}
-                        <span class="用戶名">${user.username}</span>
-                        <button class="視圖按鈕" onclick="handleLogout()">登出</button>
-                    </div>
-                `;
             }
         }
 
