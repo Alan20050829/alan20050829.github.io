@@ -613,9 +613,6 @@
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
-        background-color: var(--背景色);
-        color: var(--文字色);
-        border: 1px solid var(--border-color);
         padding: 12px;
         border-radius: 8px;
         font-size: 16px;
@@ -754,7 +751,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             初始化應用();
         });
-        
+        document.addEventListener('DOMContentLoaded', function() {
+            var timeInputs = document.querySelectorAll('input[type="time"]');
+            timeInputs.forEach(function(input) {
+                input.addEventListener('focus', function() {
+                    this.click();
+                });
+            });
+        });
         // 修正年份選擇器的滾動行為
         function 初始化年份選擇器() {
             const 選擇器 = document.getElementById('年份選擇器');
