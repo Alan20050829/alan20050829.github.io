@@ -537,6 +537,78 @@
                 flex-wrap: wrap;
             }
         }
+        .浮動按鈕 {
+            position: fixed;
+            right: 32px;
+            bottom: 32px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--主要色);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .浮動按鈕:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .浮動按鈕:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 768px) {
+            .浮動按鈕 {
+                right: 16px;
+                bottom: 16px;
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+        }
+
+        .快速新增對話框 {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            width: 90%;
+            max-width: 400px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .快速新增對話框.顯示 {
+            opacity: 1;
+        }
+
+        .快速新增表單 {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .快速新增表單 input,
+        .快速新增表單 select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
     </style>
     <meta name="google-site-verification" content="hVBY6anFNZFvpXMpPun1b5PMej5F56jTLVHhGlZVGn0" />
 </head>
@@ -1714,6 +1786,96 @@
             下載連結.download = `計劃備份_${用戶.username}_${new Date().toISOString().slice(0,10)}.json`;
             下載連結.click();
         }
+        function 顯示快速新增對話框() {
+            if (!userManager.isLoggedIn()) {
+                消息系統.顯示('請先登入', 'error');
+                return;
+            }
+
+            // 創建遮罩
+            const 遮罩 = document.createElement('div');
+            遮罩.className = '全局遮罩';
+            document.body.appendChild(遮罩);
+
+            // 創建對話框
+            const 對話框 = document.createElement('div');
+            對話框.className = '快速新增對話框';
+
+            const 今天 = new Date();
+            const 年 = 今天.getFullYear();
+            const 月 = (今天.getMonth() + 1).toString().padStart(2, '0');
+            const 日 = 今天.getDate().toString().padStart(2, '0');
+
+            對話框.innerHTML = `
+                <form class="快速新增表單" onsubmit="提交快速新增表單(event)">
+                    <h3>新增任務</h3>
+                    <input type="text" name="內容" placeholder="任務內容" required>
+                    <input type="date" name="日期" value="${年}-${月}-${日}" required>
+                    <input type="time" name="時間" min="00:00" max="23:59">
+                    <select name="優先級">
+                        <option value="高">高優先級</option>
+                        <option value="中" selected>中優先級</option>
+                        <option value="低">低優先級</option>
+                    </select>
+                    <div class="按鈕組">
+                        <button type="button" onclick="關閉快速新增對話框()">取消</button>
+                        <button type="submit">確定</button>
+                    </div>
+                </form>
+            `;
+
+            document.body.appendChild(對話框);
+            requestAnimationFrame(() => {
+                遮罩.classList.add('顯示');
+                對話框.classList.add('顯示');
+            });
+
+            // 點擊遮罩關閉對話框
+            遮罩.addEventListener('click', (事件) => {
+                if (事件.target === 遮罩) {
+                    關閉快速新增對話框();
+                }
+            });
+        }
+
+        function 關閉快速新增對話框() {
+            const 對話框 = document.querySelector('.快速新增對話框');
+            const 遮罩 = document.querySelector('.全局遮罩');
+
+            if (對話框) {
+                對話框.classList.remove('顯示');
+                遮罩.classList.remove('顯示');
+
+                setTimeout(() => {
+                    對話框.remove();
+                    遮罩.remove();
+                }, 300);
+            }
+        }
+
+        function 提交快速新增表單(事件) {
+            事件.preventDefault();
+            const 表單數據 = new FormData(事件.target);
+
+            const 日期字串 = 表單數據.get('日期');
+            const 時間輸入 = 表單數據.get('時間');
+
+            const 時間戳 = 時間輸入 || '';
+
+            const 任務數據 = {
+                id: Date.now(),
+                內容: 表單數據.get('內容'),
+                日期: 日期字串,
+                時間戳: 時間戳,
+                優先級: 表單數據.get('優先級'),
+                完成: false
+            };
+
+            任務資料.push(任務數據);
+            儲存資料();
+            關閉快速新增對話框();
+            渲染日曆();
+        }
         // 初始化設定
         document.getElementById('匯入檔案').addEventListener('change', function(e) {
             const 檔案 = e.target.files[0];
@@ -1746,5 +1908,6 @@
         更新視圖按鈕狀態();
         渲染日曆();
     </script>
+    <button class="浮動按鈕" onclick="顯示快速新增對話框()">+</button>
 </body>
 </html>
